@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DCF Valuation Model</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* Custom Slider Styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #1f293d;
+      border-radius: 9999px;
+      border: 1px solid #2d3748;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+      border: 2px solid #ffffff;
+      transition: transform 0.15s ease, background-color 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #60a5fa;
+    }
+    input[type=range]::-moz-range-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #1f293d;
+      border-radius: 9999px;
+      border: 1px solid #2d3748;
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+      border: 2px solid #ffffff;
+      transition: transform 0.15s ease;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f17] text-slate-100 min-h-screen p-4 sm:p-6 lg:p-8 font-sans antialiased selection:bg-blue-600 selection:text-white">
+  <div class="max-w-4xl mx-auto space-y-5">
+    
+    <!-- Top Bar -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-800/80">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20 text-blue-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            DCF Valuation Model
+            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-medium">Interactive</span>
+          </h1>
+          <p class="text-xs text-slate-400">Discounted Cash Flow & Gordon Growth Terminal Model</p>
+        </div>
+      </div>
+
+      <!-- Capital Structure Summary & Quick Edit Trigger -->
+      <div class="flex items-center gap-3 text-xs sm:text-sm text-slate-400 bg-slate-900/80 border border-slate-800 rounded-lg px-3 py-1.5 shadow-sm">
+        <div class="flex items-center gap-2 font-mono">
+          <span id="headerSharesDisplay" class="text-slate-200 font-semibold">20M</span> Shares
+          <span class="text-slate-600">•</span>
+          <span id="headerCashDisplay" class="text-slate-200 font-semibold">$50M</span> Cash
+          <span class="text-slate-600">•</span>
+          <span id="headerDebtDisplay" class="text-slate-200 font-semibold">$200M</span> Debt
+        </div>
+        <button id="toggleCapStructureBtn" class="text-blue-400 hover:text-blue-300 font-medium text-xs ml-1 underline decoration-dotted transition-colors">
+          Edit
+        </button>
+      </div>
+    </header>
+
+    <!-- Capital Structure Edit Drawer / Panel (Hidden by default) -->
+    <div id="capStructurePanel" class="hidden bg-slate-900/90 border border-blue-500/30 rounded-xl p-4 shadow-xl backdrop-blur transition-all">
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+        <h3 class="text-sm font-semibold text-blue-400 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+          Capital Structure & Share Count Settings
+        </h3>
+        <button id="closeCapStructureBtn" class="text-slate-400 hover:text-white text-xs">✕ Close</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Shares Outstanding (M)</label>
+          <div class="relative">
+            <input type="number" id="inputShares" value="20" min="0.1" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+            <span class="absolute right-3 top-2 text-xs text-slate-500">M</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Cash & Equivalents ($M)</label>
+          <div class="relative">
+            <input type="number" id="inputCash" value="50" min="0" step="5" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+            <span class="absolute right-3 top-2 text-xs text-slate-500">$M</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Total Debt ($M)</label>
+          <div class="relative">
+            <input type="number" id="inputDebt" value="200" min="0" step="10" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:border-blue-500 focus:outline-none">
+            <span class="absolute right-3 top-2 text-xs text-slate-500">$M</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 flex justify-between items-center text-xs text-slate-400">
+        <span>Net Debt: <span id="netDebtDisplay" class="font-semibold text-slate-200">$150M</span></span>
+        <button id="resetDefaultsBtn" class="text-xs text-slate-400 hover:text-slate-200 underline">Reset all to screenshot baseline</button>
+      </div>
+    </div>
+
+    <!-- 3 KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+      <!-- Card 1: Intrinsic Value (Highlighted) -->
+      <div class="relative rounded-xl border border-blue-500/70 bg-gradient-to-br from-blue-950/40 via-slate-900/90 to-blue-900/20 p-5 shadow-lg shadow-blue-950/40">
+        <div class="text-[11px] font-bold tracking-wider uppercase text-blue-300/90">
+          INTRINSIC VALUE
+        </div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span id="kpiIntrinsicValue" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-blue-400 drop-shadow-sm">
+            $92.12
+          </span>
+        </div>
+        <div class="mt-1.5 text-xs text-slate-400">
+          Per Share
+        </div>
+        <div class="absolute top-4 right-4 text-blue-400/40">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 2: Enterprise Value -->
+      <div class="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-sm">
+        <div class="text-[11px] font-bold tracking-wider uppercase text-slate-400">
+          ENTERPRISE VALUE
+        </div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span id="kpiEnterpriseValue" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            $1,992M
+          </span>
+        </div>
+        <div class="mt-1.5 text-xs text-slate-400">
+          <span id="kpiTerminalValPct" class="text-slate-300 font-medium">76%</span> Terminal Value
+        </div>
+      </div>
+
+      <!-- Card 3: Equity Value -->
+      <div class="rounded-xl border border-slate-800 bg-slate-900/90 p-5 shadow-sm">
+        <div class="text-[11px] font-bold tracking-wider uppercase text-slate-400">
+          EQUITY VALUE
+        </div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span id="kpiEquityValue" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            $1,842M
+          </span>
+        </div>
+        <div class="mt-1.5 text-xs text-slate-400">
+          EV + Cash - Debt
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: 5-Year Cash Flow Projections -->
+    <div class="rounded-xl border border-slate-800 bg-slate-900/80 p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm sm:text-base font-semibold text-slate-100 flex items-center gap-2">
+          5-Year Cash Flow Projections
+        </h2>
+        <span class="text-xs text-slate-400 font-mono">$ Millions (FCFF vs PV)</span>
+      </div>
+
+      <!-- Chart Container (Interactive SVG) -->
+      <div class="relative w-full overflow-hidden">
+        <div id="chartTooltip" class="absolute hidden z-20 pointer-events-none bg-slate-950/95 border border-slate-700 rounded-md px-2.5 py-1.5 text-xs shadow-xl backdrop-blur transition-opacity"></div>
+        <svg id="projectionsChart" class="w-full h-56 select-none" viewBox="0 0 650 200" preserveAspectRatio="none">
+          <!-- Background Gridlines rendered here -->
+          <g id="chartGrid"></g>
+          <!-- Bars rendered here -->
+          <g id="chartBars"></g>
+          <!-- Labels rendered here -->
+          <g id="chartLabels"></g>
+        </svg>
+      </div>
+
+      <!-- Legend -->
+      <div class="flex items-center justify-center gap-8 mt-3 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#93c5fd] inline-block shadow-sm"></span>
+          <span class="text-slate-300 font-medium italic">Projected FCFF</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3.5 h-3.5 rounded-full bg-[#a5b4fc] inline-block shadow-sm"></span>
+          <span class="text-slate-300 font-medium italic">Present Value (PV)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Sensitivity Matrix -->
+    <div class="rounded-xl border border-slate-800 bg-slate-900/80 p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm sm:text-base font-semibold text-slate-100">
+          Sensitivity Matrix: Share Price ($)
+        </h2>
+        <span class="text-xs text-slate-400 font-mono">WACC vs Long-term Growth Rate</span>
+      </div>
+
+      <!-- Matrix Table -->
+      <div class="overflow-x-auto custom-scroll">
+        <table class="w-full text-center border-collapse">
+          <thead>
+            <tr class="text-xs text-slate-400 font-medium">
+              <th class="py-2.5 px-3 bg-slate-950/50 rounded-lg text-slate-400 font-mono text-[11px] border border-slate-800/60">WACC \ LTG</th>
+              <th class="py-2.5 px-3 bg-slate-950/30 font-mono text-[11px] text-slate-300">1.5%</th>
+              <th class="py-2.5 px-3 bg-slate-950/30 font-mono text-[11px] text-slate-300">2.0%</th>
+              <th class="py-2.5 px-3 bg-slate-950/30 font-mono text-[11px] text-slate-300">2.5%</th>
+              <th class="py-2.5 px-3 bg-slate-950/30 font-mono text-[11px] text-slate-300">3.0%</th>
+              <th class="py-2.5 px-3 bg-slate-950/30 font-mono text-[11px] text-slate-300">3.5%</th>
+            </tr>
+          </thead>
+          <tbody id="sensitivityTableBody" class="text-xs sm:text-sm font-semibold divide-y divide-slate-900/40">
+            <!-- Dynamic rows generated via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Color scale indicator -->
+      <div class="flex items-center justify-between mt-4 text-[11px] text-slate-400 font-medium">
+        <span>Lower Valuation</span>
+        <div class="flex-1 mx-4 h-2 rounded-full bg-gradient-to-r from-[#172554] via-[#1d4ed8] to-[#38bdf8] shadow-inner max-w-xs"></div>
+        <span>Higher Valuation</span>
+      </div>
+      <div class="text-[10px] text-slate-500 text-center mt-1">
+        * Click any matrix cell to test those WACC & Perpetual Growth assumptions immediately
+      </div>
+    </div>
+
+    <!-- Section 4: Sliders & Controls -->
+    <div class="rounded-xl border border-slate-800 bg-slate-900/80 p-5 shadow-sm space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        
+        <!-- Slider 1: Base FCFF -->
+        <div>
+          <div class="flex items-center justify-between text-xs sm:text-sm mb-2">
+            <span class="text-slate-200 font-medium">Base FCFF</span>
+            <span id="badgeBaseFCFF" class="text-blue-400 font-mono font-bold text-sm">$100M</span>
+          </div>
+          <input type="range" id="sliderBaseFCFF" min="10" max="300" step="5" value="100">
+          <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+            <span>$10M</span>
+            <span>$300M</span>
+          </div>
+        </div>
+
+        <!-- Slider 2: 5-Yr Growth Rate -->
+        <div>
+          <div class="flex items-center justify-between text-xs sm:text-sm mb-2">
+            <span class="text-slate-200 font-medium">5-Yr Growth Rate</span>
+            <span id="badgeGrowthRate" class="text-blue-400 font-mono font-bold text-sm">8.0%</span>
+          </div>
+          <input type="range" id="sliderGrowthRate" min="-5" max="25" step="0.5" value="8.0">
+          <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+            <span>-5.0%</span>
+            <span>25.0%</span>
+          </div>
+        </div>
+
+        <!-- Slider 3: WACC (Discount Rate) -->
+        <div>
+          <div class="flex items-center justify-between text-xs sm:text-sm mb-2">
+            <span class="text-slate-200 font-medium">WACC (Discount Rate)</span>
+            <span id="badgeWACC" class="text-blue-400 font-mono font-bold text-sm">9.0%</span>
+          </div>
+          <input type="range" id="sliderWACC" min="5.0" max="15.0" step="0.1" value="9.0">
+          <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+            <span>5.0%</span>
+            <span>15.0%</span>
+          </div>
+        </div>
+
+        <!-- Slider 4: Perpetual Growth -->
+        <div>
+          <div class="flex items-center justify-between text-xs sm:text-sm mb-2">
+            <span class="text-slate-200 font-medium">Perpetual Growth</span>
+            <span id="badgePerpetualGrowth" class="text-blue-400 font-mono font-bold text-sm">2.5%</span>
+          </div>
+          <input type="range" id="sliderPerpetualGrowth" min="0.5" max="4.5" step="0.1" value="2.5">
+          <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+            <span>0.5%</span>
+            <span>4.5%</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Preset Scenarios & Table Toggle Buttons -->
+      <div class="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Presets:</span>
+          <button class="preset-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition" data-fcff="100" data-growth="8.0" data-wacc="9.0" data-ltg="2.5">Default (Image)</button>
+          <button class="preset-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition" data-fcff="150" data-growth="15.0" data-wacc="10.5" data-ltg="3.0">High Growth Tech</button>
+          <button class="preset-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition" data-fcff="120" data-growth="3.0" data-wacc="7.5" data-ltg="2.0">Mature Utility</button>
+        </div>
+        <button id="toggleDetailsBtn" class="px-2.5 py-1 rounded bg-blue-950/60 border border-blue-500/40 text-blue-300 hover:bg-blue-900/60 transition flex items-center gap-1.5">
+          <span>Detailed Breakdown</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Detailed Breakdown Table (Collapsible) -->
+      <div id="detailsSection" class="hidden pt-4 border-t border-slate-800">
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Year-by-Year Cash Flow & Discounting Schedule</h4>
+        <div class="overflow-x-auto custom-scroll rounded-lg border border-slate-800">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-950 text-slate-400 font-mono">
+              <tr>
+                <th class="py-2 px-3">Year</th>
+                <th class="py-2 px-3">Formula</th>
+                <th class="py-2 px-3 text-right">Projected FCFF</th>
+                <th class="py-2 px-3 text-right">Discount Factor</th>
+                <th class="py-2 px-3 text-right">Present Value (PV)</th>
+              </tr>
+            </thead>
+            <tbody id="detailsTableBody" class="divide-y divide-slate-800/60 font-mono">
+              <!-- Rendered via JS -->
+            </tbody>
+            <tfoot class="bg-slate-950/80 font-mono text-slate-300">
+              <tr class="border-t border-slate-700">
+                <td colspan="4" class="py-2 px-3 font-semibold text-right">5-Year Cumulative PV:</td>
+                <td id="detailSumPV" class="py-2 px-3 font-bold text-right text-blue-400">$486.4M</td>
+              </tr>
+              <tr>
+                <td colspan="4" class="py-2 px-3 font-semibold text-right">Terminal Value (Gordon Growth):</td>
+                <td id="detailTV" class="py-2 px-3 font-bold text-right text-indigo-300">$2,317.0M</td>
+              </tr>
+              <tr>
+                <td colspan="4" class="py-2 px-3 font-semibold text-right">PV of Terminal Value:</td>
+                <td id="detailPVTV" class="py-2 px-3 font-bold text-right text-indigo-400">$1,505.9M</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // State
+    const state = {
+      baseFCFF: 100.0,
+      growthRate: 8.0, // %
+      wacc: 9.0, // %
+      perpetualGrowth: 2.5, // %
+      shares: 20.0, // Millions
+      cash: 50.0, // $M
+      debt: 200.0, // $M
+    };
+
+    // DOM Elements
+    const sliderBaseFCFF = document.getElementById('sliderBaseFCFF');
+    const sliderGrowthRate = document.getElementById('sliderGrowthRate');
+    const sliderWACC = document.getElementById('sliderWACC');
+    const sliderPerpetualGrowth = document.getElementById('sliderPerpetualGrowth');
+
+    const badgeBaseFCFF = document.getElementById('badgeBaseFCFF');
+    const badgeGrowthRate = document.getElementById('badgeGrowthRate');
+    const badgeWACC = document.getElementById('badgeWACC');
+    const badgePerpetualGrowth = document.getElementById('badgePerpetualGrowth');
+
+    const kpiIntrinsicValue = document.getElementById('kpiIntrinsicValue');
+    const kpiEnterpriseValue = document.getElementById('kpiEnterpriseValue');
+    const kpiEquityValue = document.getElementById('kpiEquityValue');
+    const kpiTerminalValPct = document.getElementById('kpiTerminalValPct');
+
+    const headerSharesDisplay = document.getElementById('headerSharesDisplay');
+    const headerCashDisplay = document.getElementById('headerCashDisplay');
+    const headerDebtDisplay = document.getElementById('headerDebtDisplay');
+
+    const inputShares = document.getElementById('inputShares');
+    const inputCash = document.getElementById('inputCash');
+    const inputDebt = document.getElementById('inputDebt');
+    const netDebtDisplay = document.getElementById('netDebtDisplay');
+
+    const capStructurePanel = document.getElementById('capStructurePanel');
+    const toggleCapStructureBtn = document.getElementById('toggleCapStructureBtn');
+    const closeCapStructureBtn = document.getElementById('closeCapStructureBtn');
+    const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+
+    const toggleDetailsBtn = document.getElementById('toggleDetailsBtn');
+    const detailsSection = document.getElementById('detailsSection');
+    const detailsTableBody = document.getElementById('detailsTableBody');
+    const detailSumPV = document.getElementById('detailSumPV');
+    const detailTV = document.getElementById('detailTV');
+    const detailPVTV = document.getElementById('detailPVTV');
+
+    const chartGrid = document.getElementById('chartGrid');
+    const chartBars = document.getElementById('chartBars');
+    const chartLabels = document.getElementById('chartLabels');
+    const chartTooltip = document.getElementById('chartTooltip');
+
+    const sensitivityTableBody = document.getElementById('sensitivityTableBody');
+
+    // DCF Calculation Engine
+    function calculateDCF(baseFCFF, growthRatePct, waccPct, perpetualGrowthPct, shares, cash, debt) {
+      const g1 = growthRatePct / 100.0;
+      const wacc = waccPct / 100.0;
+      const g2 = perpetualGrowthPct / 100.0;
+
+      const projections = [];
+      let sumPV = 0;
+
+      for (let t = 1; t <= 5; t++) {
+        const fcff = baseFCFF * Math.pow(1 + g1, t);
+        const discountFactor = Math.pow(1 + wacc, t);
+        const pv = fcff / discountFactor;
+        sumPV += pv;
+        projections.push({ year: t, fcff, discountFactor, pv });
+      }
+
+      const terminalYearFCFF = projections[4].fcff * (1 + g2);
+      let terminalValue = 0;
+      let pvTerminalValue = 0;
+
+      if (wacc > g2) {
+        terminalValue = terminalYearFCFF / (wacc - g2);
+        pvTerminalValue = terminalValue / Math.pow(1 + wacc, 5);
+      } else {
+        terminalValue = Infinity;
+        pvTerminalValue = Infinity;
+      }
+
+      const enterpriseValue = sumPV + pvTerminalValue;
+      const terminalValPct = enterpriseValue > 0 ? (pvTerminalValue / enterpriseValue) * 100 : 0;
+      const equityValue = enterpriseValue + cash - debt;
+      const intrinsicValuePerShare = shares > 0 ? equityValue / shares : 0;
+
+      return {
+        projections,
+        sumPV,
+        terminalYearFCFF,
+        terminalValue,
+        pvTerminalValue,
+        enterpriseValue,
+        terminalValPct,
+        equityValue,
+        intrinsicValuePerShare,
+      };
+    }
+
+    // Formatters
+    const fmtCurrency = (n, dec = 0) => {
+      if (!isFinite(n)) return 'N/A';
+      return '$' + n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    };
+
+    // Render Projections Dual-Bar Chart (SVG)
+    function renderProjectionsChart(projections) {
+      const chartWidth = 650;
+      const chartHeight = 200;
+      const padTop = 20;
+      const padBottom = 35;
+      const padLeft = 55;
+      const padRight = 20;
+
+      const plotWidth = chartWidth - padLeft - padRight;
+      const plotHeight = chartHeight - padTop - padBottom;
+
+      // Determine max value for Y axis (at least 150)
+      const maxValRaw = Math.max(...projections.map(p => Math.max(p.fcff, p.pv)));
+      const maxY = Math.max(150, Math.ceil(maxValRaw / 50) * 50);
+
+      // Y-axis gridlines: 0, 50, 100, 150...
+      const step = maxY <= 200 ? 50 : 100;
+      let gridHTML = '';
+      for (let yVal = 0; yVal <= maxY; yVal += step) {
+        const yPos = padTop + plotHeight - (yVal / maxY) * plotHeight;
+        gridHTML += `
+          <line x1="${padLeft}" y1="${yPos}" x2="${chartWidth - padRight}" y2="${yPos}" stroke="#1e293b" stroke-dasharray="3,3" stroke-width="1" />
+          <text x="${padLeft - 10}" y="${yPos + 4}" fill="#64748b" font-size="11" font-family="monospace" text-anchor="end">$${yVal}M</text>
+        `;
+      }
+      chartGrid.innerHTML = gridHTML;
+
+      // Render Bars & Labels
+      const numYears = projections.length;
+      const slotWidth = plotWidth / numYears;
+      const barWidth = 26;
+      const barGap = 6;
+
+      let barsHTML = '';
+      let labelsHTML = '';
+
+      projections.forEach((p, idx) => {
+        const slotCenter = padLeft + idx * slotWidth + slotWidth / 2;
+        const xFCFF = slotCenter - barWidth - barGap / 2;
+        const xPV = slotCenter + barGap / 2;
+
+        const hFCFF = (p.fcff / maxY) * plotHeight;
+        const yFCFF = padTop + plotHeight - hFCFF;
+
+        const hPV = (p.pv / maxY) * plotHeight;
+        const yPV = padTop + plotHeight - hPV;
+
+        // FCFF Bar (Sky blue)
+        barsHTML += `
+          <rect class="cursor-pointer transition-all hover:opacity-80" 
+                x="${xFCFF}" y="${yFCFF}" width="${barWidth}" height="${hFCFF}" rx="4" fill="#93c5fd" 
+                data-title="Year ${p.year} Projected FCFF" data-val="$${p.fcff.toFixed(1)}M" />
+        `;
+
+        // PV Bar (Lavender/Indigo)
+        barsHTML += `
+          <rect class="cursor-pointer transition-all hover:opacity-80" 
+                x="${xPV}" y="${yPV}" width="${barWidth}" height="${hPV}" rx="4" fill="#a5b4fc" 
+                data-title="Year ${p.year} Present Value (PV)" data-val="$${p.pv.toFixed(1)}M" />
+        `;
+
+        // X-axis label
+        labelsHTML += `
+          <text x="${slotCenter}" y="${chartHeight - 12}" fill="#94a3b8" font-size="12" font-weight="500" text-anchor="middle">Year ${p.year}</text>
+        `;
+      });
+
+      chartBars.innerHTML = barsHTML;
+      chartLabels.innerHTML = labelsHTML;
+
+      // Attach tooltip listeners to SVG bars
+      const bars = chartBars.querySelectorAll('rect');
+      bars.forEach(bar => {
+        bar.addEventListener('mouseenter', (e) => {
+          const title = bar.getAttribute('data-title');
+          const val = bar.getAttribute('data-val');
+          chartTooltip.innerHTML = `<span class="text-slate-400">${title}:</span> <span class="font-bold text-white">${val}</span>`;
+          chartTooltip.classList.remove('hidden');
+        });
+        bar.addEventListener('mousemove', (e) => {
+          const rect = chartTooltip.parentElement.getBoundingClientRect();
+          const x = e.clientX - rect.left + 10;
+          const y = e.clientY - rect.top - 30;
+          chartTooltip.style.left = `${x}px`;
+          chartTooltip.style.top = `${y}px`;
+        });
+        bar.addEventListener('mouseleave', () => {
+          chartTooltip.classList.add('hidden');
+        });
+      });
+    }
+
+    // Render Sensitivity Matrix
+    function renderSensitivityMatrix() {
+      // 5 WACC rows: 7.0%, 8.0%, 9.0%, 10.0%, 11.0%
+      const waccRows = [7.0, 8.0, 9.0, 10.0, 11.0];
+      // 5 LTG columns: 1.5%, 2.0%, 2.5%, 3.0%, 3.5%
+      const ltgCols = [1.5, 2.0, 2.5, 3.0, 3.5];
+
+      // Calculate all values first to get min and max for heatmap scaling
+      const values = [];
+      const matrixData = [];
+
+      waccRows.forEach(w => {
+        const row = [];
+        ltgCols.forEach(g => {
+          const res = calculateDCF(state.baseFCFF, state.growthRate, w, g, state.shares, state.cash, state.debt);
+          const price = res.intrinsicValuePerShare;
+          row.push(price);
+          if (isFinite(price) && price > 0) {
+            values.push(price);
+          }
+        });
+        matrixData.push({ wacc: w, cells: row });
+      });
+
+      const minVal = Math.min(...values);
+      const maxVal = Math.max(...values);
+
+      let tbodyHTML = '';
+
+      matrixData.forEach((row, rowIdx) => {
+        const currentW = row.wacc;
+        tbodyHTML += `<tr class="hover:bg-slate-800/30 transition-colors">`;
+        tbodyHTML += `<td class="py-2.5 px-3 font-mono text-[11px] text-slate-300 font-bold bg-slate-950/40">${currentW.toFixed(1)}%</td>`;
+
+        row.cells.forEach((val, colIdx) => {
+          const currentG = ltgCols[colIdx];
+          const isSelected = Math.abs(currentW - state.wacc) < 0.05 && Math.abs(currentG - state.perpetualGrowth) < 0.05;
+
+          // Normalized color factor 0 to 1
+          const factor = (val - minVal) / (maxVal - minVal || 1);
+          // Interpolate background color from dark navy (#172554) to bright blue (#2563eb)
+          const bgOpacity = 0.25 + factor * 0.75;
+          const bgColor = `rgba(37, 99, 235, ${bgOpacity.toFixed(2)})`;
+
+          const borderClass = isSelected
+            ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-slate-950 shadow-md shadow-cyan-500/50 z-10 scale-[1.03] text-white font-black'
+            : 'hover:brightness-125 text-slate-100 font-semibold';
+
+          tbodyHTML += `
+            <td class="p-1">
+              <button 
+                class="w-full py-2 px-1 rounded-md transition-all duration-150 font-mono text-xs sm:text-sm ${borderClass}" 
+                style="background-color: ${bgColor};"
+                data-wacc="${currentW}" 
+                data-ltg="${currentG}"
+                title="WACC: ${currentW.toFixed(1)}%, LTG: ${currentG.toFixed(1)}% -> $${val.toFixed(2)}">
+                $${val.toFixed(1)}
+              </button>
+            </td>
+          `;
+        });
+
+        tbodyHTML += `</tr>`;
+      });
+
+      sensitivityTableBody.innerHTML = tbodyHTML;
+
+      // Add click handlers on sensitivity cells to update inputs
+      sensitivityTableBody.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const newWacc = parseFloat(btn.getAttribute('data-wacc'));
+          const newLtg = parseFloat(btn.getAttribute('data-ltg'));
+          state.wacc = newWacc;
+          state.perpetualGrowth = newLtg;
+          sliderWACC.value = newWacc;
+          sliderPerpetualGrowth.value = newLtg;
+          updateDashboard();
+        });
+      });
+    }
+
+    // Render Detailed Breakdown Table
+    function renderDetailsTable(projections, sumPV, terminalValue, pvTerminalValue) {
+      let html = '';
+      projections.forEach(p => {
+        html += `
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-2 px-3 text-slate-300 font-semibold">Year ${p.year}</td>
+            <td class="py-2 px-3 text-slate-500 text-[11px]">$${state.baseFCFF}M × (1 + ${state.growthRate}%)^${p.year}</td>
+            <td class="py-2 px-3 text-right font-semibold text-blue-300">$${p.fcff.toFixed(2)}M</td>
+            <td class="py-2 px-3 text-right text-slate-400">1 / (1 + ${state.wacc}%)^${p.year} = ${(1 / p.discountFactor).toFixed(4)}</td>
+            <td class="py-2 px-3 text-right font-bold text-slate-200">$${p.pv.toFixed(2)}M</td>
+          </tr>
+        `;
+      });
+      detailsTableBody.innerHTML = html;
+      detailSumPV.textContent = `$${sumPV.toFixed(1)}M`;
+      detailTV.textContent = isFinite(terminalValue) ? `$${terminalValue.toLocaleString('en-US', { maximumFractionDigits: 1 })}M` : 'Undefined (WACC ≤ LTG)';
+      detailPVTV.textContent = isFinite(pvTerminalValue) ? `$${pvTerminalValue.toLocaleString('en-US', { maximumFractionDigits: 1 })}M` : 'N/A';
+    }
+
+    // Main Update Dashboard
+    function updateDashboard() {
+      // Guardrail: WACC must be > perpetual growth
+      if (state.perpetualGrowth >= state.wacc) {
+        state.perpetualGrowth = Number((state.wacc - 0.5).toFixed(1));
+        sliderPerpetualGrowth.value = state.perpetualGrowth;
+      }
+
+      // Update Slider Badges
+      badgeBaseFCFF.textContent = `$${state.baseFCFF}M`;
+      badgeGrowthRate.textContent = `${state.growthRate.toFixed(1)}%`;
+      badgeWACC.textContent = `${state.wacc.toFixed(1)}%`;
+      badgePerpetualGrowth.textContent = `${state.perpetualGrowth.toFixed(1)}%`;
+
+      // Update Header & Drawer displays
+      headerSharesDisplay.textContent = `${state.shares}M`;
+      headerCashDisplay.textContent = `$${state.cash}M`;
+      headerDebtDisplay.textContent = `$${state.debt}M`;
+      const netDebt = state.debt - state.cash;
+      netDebtDisplay.textContent = `$${netDebt}M`;
+
+      // Perform DCF Math
+      const results = calculateDCF(
+        state.baseFCFF,
+        state.growthRate,
+        state.wacc,
+        state.perpetualGrowth,
+        state.shares,
+        state.cash,
+        state.debt
+      );
+
+      // Update KPI Cards
+      kpiIntrinsicValue.textContent = fmtCurrency(results.intrinsicValuePerShare, 2);
+      kpiEnterpriseValue.textContent = fmtCurrency(results.enterpriseValue, 0) + 'M';
+      kpiEquityValue.textContent = fmtCurrency(results.equityValue, 0) + 'M';
+      kpiTerminalValPct.textContent = `${Math.round(results.terminalValPct)}%`;
+
+      // Render Visualizations
+      renderProjectionsChart(results.projections);
+      renderSensitivityMatrix();
+      renderDetailsTable(results.projections, results.sumPV, results.terminalValue, results.pvTerminalValue);
+    }
+
+    // Slider Event Listeners
+    sliderBaseFCFF.addEventListener('input', (e) => {
+      state.baseFCFF = parseFloat(e.target.value);
+      updateDashboard();
+    });
+
+    sliderGrowthRate.addEventListener('input', (e) => {
+      state.growthRate = parseFloat(e.target.value);
+      updateDashboard();
+    });
+
+    sliderWACC.addEventListener('input', (e) => {
+      state.wacc = parseFloat(e.target.value);
+      updateDashboard();
+    });
+
+    sliderPerpetualGrowth.addEventListener('input', (e) => {
+      state.perpetualGrowth = parseFloat(e.target.value);
+      updateDashboard();
+    });
+
+    // Capital Structure Inputs
+    inputShares.addEventListener('input', (e) => {
+      state.shares = Math.max(0.01, parseFloat(e.target.value) || 1);
+      updateDashboard();
+    });
+
+    inputCash.addEventListener('input', (e) => {
+      state.cash = parseFloat(e.target.value) || 0;
+      updateDashboard();
+    });
+
+    inputDebt.addEventListener('input', (e) => {
+      state.debt = parseFloat(e.target.value) || 0;
+      updateDashboard();
+    });
+
+    // Drawer Toggles
+    toggleCapStructureBtn.addEventListener('click', () => {
+      capStructurePanel.classList.toggle('hidden');
+    });
+
+    closeCapStructureBtn.addEventListener('click', () => {
+      capStructurePanel.classList.add('hidden');
+    });
+
+    toggleDetailsBtn.addEventListener('click', () => {
+      detailsSection.classList.toggle('hidden');
+      const isVisible = !detailsSection.classList.contains('hidden');
+      toggleDetailsBtn.querySelector('span').textContent = isVisible ? 'Hide Breakdown' : 'Detailed Breakdown';
+      toggleDetailsBtn.querySelector('svg').style.transform = isVisible ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+
+    // Presets
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.baseFCFF = parseFloat(btn.getAttribute('data-fcff'));
+        state.growthRate = parseFloat(btn.getAttribute('data-growth'));
+        state.wacc = parseFloat(btn.getAttribute('data-wacc'));
+        state.perpetualGrowth = parseFloat(btn.getAttribute('data-ltg'));
+
+        sliderBaseFCFF.value = state.baseFCFF;
+        sliderGrowthRate.value = state.growthRate;
+        sliderWACC.value = state.wacc;
+        sliderPerpetualGrowth.value = state.perpetualGrowth;
+
+        updateDashboard();
+      });
+    });
+
+    resetDefaultsBtn.addEventListener('click', () => {
+      state.baseFCFF = 100.0;
+      state.growthRate = 8.0;
+      state.wacc = 9.0;
+      state.perpetualGrowth = 2.5;
+      state.shares = 20.0;
+      state.cash = 50.0;
+      state.debt = 200.0;
+
+      sliderBaseFCFF.value = state.baseFCFF;
+      sliderGrowthRate.value = state.growthRate;
+      sliderWACC.value = state.wacc;
+      sliderPerpetualGrowth.value = state.perpetualGrowth;
+
+      inputShares.value = state.shares;
+      inputCash.value = state.cash;
+      inputDebt.value = state.debt;
+
+      updateDashboard();
+      capStructurePanel.classList.add('hidden');
+    });
+
+    // Initial Render
+    updateDashboard();
+  </script>
+</body>
+</html>
