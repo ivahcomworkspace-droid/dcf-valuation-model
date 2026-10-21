@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DCF Valuation & Financial Analytics Platform - Executive Technical Guide</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 12mm 14mm;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.45;
+      font-size: 9.5pt;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1, h2, h3, h4 {
+      color: #0f172a;
+      font-weight: 700;
+      break-after: avoid;
+    }
+
+    h1 {
+      font-size: 19pt;
+      line-height: 1.2;
+      border-bottom: 2.5px solid #2563eb;
+      padding-bottom: 6px;
+      margin-top: 0;
+      margin-bottom: 4px;
+    }
+
+    h2 {
+      font-size: 12.5pt;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      color: #1e40af;
+    }
+
+    h3 {
+      font-size: 10.5pt;
+      color: #0f172a;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    p {
+      margin-top: 3px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 10pt;
+      color: #64748b;
+      margin-top: 2px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 8pt;
+      font-weight: 600;
+      border-radius: 4px;
+      background-color: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      margin-right: 4px;
+      margin-bottom: 8px;
+    }
+
+    /* Executive Highlights Grid */
+    .kpi-grid {
+      display: flex;
+      gap: 10px;
+      margin: 8px 0 12px 0;
+      break-inside: avoid;
+    }
+
+    .kpi-card {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 12px;
+      background-color: #f8fafc;
+    }
+
+    .kpi-card-highlight {
+      flex: 1;
+      border: 1.5px solid #2563eb;
+      border-radius: 6px;
+      padding: 8px 12px;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+
+    .kpi-title {
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .kpi-title-highlight {
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #1d4ed8;
+    }
+
+    .kpi-val {
+      font-size: 16pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 2px 0;
+    }
+
+    .kpi-val-highlight {
+      font-size: 16pt;
+      font-weight: 800;
+      color: #1d4ed8;
+      margin: 2px 0;
+    }
+
+    .kpi-sub {
+      font-size: 8pt;
+      color: #64748b;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 8.5pt;
+      break-inside: avoid;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 5px 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    /* Formulas */
+    .formula-box {
+      background-color: #f8fafc;
+      border-left: 3px solid #2563eb;
+      padding: 6px 12px;
+      margin: 6px 0;
+      font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      font-size: 8.5pt;
+      color: #0f172a;
+      border-radius: 0 4px 4px 0;
+      break-inside: avoid;
+      line-height: 1.4;
+    }
+
+    code {
+      font-family: Consolas, "Liberation Mono", Courier, monospace;
+      font-size: 8pt;
+      background-color: #f1f5f9;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #0f172a;
+    }
+
+    .callout-blue {
+      background-color: #eff6ff;
+      border-left: 3px solid #2563eb;
+      padding: 6px 12px;
+      margin: 6px 0;
+      font-size: 8.5pt;
+      color: #1e40af;
+      border-radius: 0 4px 4px 0;
+      break-inside: avoid;
+    }
+
+    ul, ol {
+      margin-top: 2px;
+      margin-bottom: 6px;
+      padding-left: 18px;
+    }
+
+    li {
+      margin-bottom: 2px;
+    }
+
+    .section-break {
+      break-before: page;
+    }
+
+    .footer {
+      font-size: 7.5pt;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 4px;
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <h1>DCF Valuation & Financial Analytics Platform</h1>
+  <div class="subtitle">
+    Institutional Equity Valuation &bull; Reverse DCF (BrentQ) &bull; 3-Stage DuPont &bull; Multi-Currency Ingestion<br>
+    <strong>GitHub Repository:</strong> https://github.com/ivahcomworkspace-droid/dcf-valuation-model &bull; Production v1.0.0
+  </div>
+
+  <div>
+    <span class="badge">DCF Valuation Engine</span>
+    <span class="badge">Reverse DCF (BrentQ)</span>
+    <span class="badge">3-Stage DuPont ROE</span>
+    <span class="badge">Live yfinance Ingestion</span>
+    <span class="badge">Multi-Currency (₹, $, €, £, ¥)</span>
+    <span class="badge">Streamlit Cloud Ready</span>
+  </div>
+
+  <!-- Executive Summary -->
+  <h2>1. Executive Summary & Vision</h2>
+  <p>
+    The <strong>DCF Valuation & Financial Analytics Platform</strong> is an institutional-grade financial application designed for equity research analysts, quantitative investors, and corporate finance practitioners. It unifies classical Discounted Cash Flow valuation, market-implied growth solving (Reverse DCF), and DuPont operational decomposition into an interactive visual dashboard.
+  </p>
+  <p>
+    Built on clean architectural principles, the system decouples a network-isolated financial math engine from an external market ingestion layer and a reactive Streamlit/Plotly frontend. It features real-time multi-currency support, in-memory TTL caching, resilient error boundaries, and a 14-test deterministic unit suite.
+  </p>
+
+  <!-- Benchmark KPI Highlight -->
+  <div class="kpi-grid">
+    <div class="kpi-card-highlight">
+      <div class="kpi-title-highlight">Intrinsic Value</div>
+      <div class="kpi-val-highlight">$92.12</div>
+      <div class="kpi-sub">Per Share (Benchmark Baseline)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Enterprise Value</div>
+      <div class="kpi-val">$1,992M</div>
+      <div class="kpi-sub">75.6% Terminal Value Contribution</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Equity Value</div>
+      <div class="kpi-val">$1,842M</div>
+      <div class="kpi-sub">EV + $50M Cash - $200M Debt</div>
+    </div>
+  </div>
+
+  <!-- System Architecture -->
+  <h2>2. System Architecture & Modular Organization</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 24%;">Layer / Module</th>
+        <th style="width: 32%;">Key Files</th>
+        <th style="width: 44%;">Core Responsibilities</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Domain Engine</strong><br><code>fin_engine/</code></td>
+        <td>
+          <code>dcf.py</code><br>
+          <code>reverse_dcf.py</code><br>
+          <code>dupont.py</code>
+        </td>
+        <td>
+          <strong>Zero network dependencies.</strong> Pure financial domain math: 5-year compounding cash flows, Gordon Growth terminal value, 2D sensitivity matrices, Brent numerical root solver, and DuPont exact-path delta attribution.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Ingestion & Services</strong><br><code>services/</code></td>
+        <td>
+          <code>schemas.py</code><br>
+          <code>ingestion.py</code>
+        </td>
+        <td>
+          Pydantic validation models for market snapshots and balance sheet line items. Live data fetching via <code>yfinance</code> with a 5-minute in-memory TTL cache and dynamic currency mapping.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Presentation Layer</strong><br><code>dashboard/</code></td>
+        <td>
+          <code>app.py</code><br>
+          <code>.streamlit/config.toml</code>
+        </td>
+        <td>
+          Production Streamlit web dashboard. Features dark obsidian/slate Plotly dual-bar cash flow projections, 2D sensitivity heatmaps, reactive parameter sliders, and preset scenarios.
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Verification Suite</strong><br><code>tests/</code></td>
+        <td>
+          <code>test_dcf.py</code>, <code>test_reverse_dcf.py</code><br>
+          <code>test_dupont.py</code>, <code>test_services.py</code>
+        </td>
+        <td>
+          Automated test harness with 14 unit tests executed via <code>pytest</code>, verifying valuation accuracy down to the exact cent, numerical solver parity, and currency symbol resolution.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 3: DCF Mathematical Foundations -->
+  <h2 class="section-break">3. Discounted Cash Flow (DCF) Mathematical Engine</h2>
+  <p>
+    The valuation engine executes a 5-year explicit discrete forecast followed by perpetual terminal value capitalization under the Gordon Growth Model.
+  </p>
+
+  <h3>3.1. 5-Year Explicit Forecast Schedule</h3>
+  <div class="formula-box">
+    FCFF_t = FCFF_0 &times; (1 + g_1)^t<br>
+    PV(FCFF_t) = FCFF_t / (1 + WACC)^t
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th class="text-center">Year</th>
+        <th>Compounding Formula</th>
+        <th class="text-right">Projected FCFF</th>
+        <th class="text-right">Discount Factor</th>
+        <th class="text-right">Present Value (PV)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-center"><strong>Year 1</strong></td>
+        <td>$100.00M &times; (1 + 0.08)<sup>1</sup></td>
+        <td class="text-right"><strong>$108.00M</strong></td>
+        <td class="text-right">1 / 1.09<sup>1</sup> = 0.9174</td>
+        <td class="text-right"><strong>$99.08M</strong></td>
+      </tr>
+      <tr>
+        <td class="text-center"><strong>Year 2</strong></td>
+        <td>$100.00M &times; (1 + 0.08)<sup>2</sup></td>
+        <td class="text-right"><strong>$116.64M</strong></td>
+        <td class="text-right">1 / 1.09<sup>2</sup> = 0.8417</td>
+        <td class="text-right"><strong>$98.17M</strong></td>
+      </tr>
+      <tr>
+        <td class="text-center"><strong>Year 3</strong></td>
+        <td>$100.00M &times; (1 + 0.08)<sup>3</sup></td>
+        <td class="text-right"><strong>$125.97M</strong></td>
+        <td class="text-right">1 / 1.09<sup>3</sup> = 0.7722</td>
+        <td class="text-right"><strong>$97.27M</strong></td>
+      </tr>
+      <tr>
+        <td class="text-center"><strong>Year 4</strong></td>
+        <td>$100.00M &times; (1 + 0.08)<sup>4</sup></td>
+        <td class="text-right"><strong>$136.05M</strong></td>
+        <td class="text-right">1 / 1.09<sup>4</sup> = 0.7084</td>
+        <td class="text-right"><strong>$96.38M</strong></td>
+      </tr>
+      <tr>
+        <td class="text-center"><strong>Year 5</strong></td>
+        <td>$100.00M &times; (1 + 0.08)<sup>5</sup></td>
+        <td class="text-right"><strong>$146.93M</strong></td>
+        <td class="text-right">1 / 1.09<sup>5</sup> = 0.6499</td>
+        <td class="text-right"><strong>$95.50M</strong></td>
+      </tr>
+      <tr>
+        <td colspan="4" class="text-right"><strong>Sum of Explicit Present Values (&Sigma; PV_FCFF):</strong></td>
+        <td class="text-right"><strong>$486.41M</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.2. Gordon Growth Terminal Value & Enterprise Value Bridge</h3>
+  <div class="formula-box">
+    FCFF_6 = FCFF_5 &times; (1 + g_2) = $146.9328M &times; 1.025 = $150.606M<br>
+    Terminal Value_5 = FCFF_6 / (WACC - g_2) = $150.606M / (0.09 - 0.025) = $2,317.02M<br>
+    PV(Terminal Value) = Terminal Value_5 / (1 + WACC)^5 = $2,317.02M / 1.09^5 = $1,505.90M<br>
+    Enterprise Value = &Sigma; PV(FCFF) + PV(Terminal Value) = $486.41M + $1,505.90M = $1,992.31M (~$1,992M)<br>
+    Terminal Value % of EV = $1,505.90M / $1,992.31M = 75.59% (~76%)<br>
+    Equity Value = Enterprise Value + Cash - Debt = $1,992.31M + $50.0M - $200.0M = $1,842.31M (~$1,842M)<br>
+    Intrinsic Value Per Share = Equity Value / Diluted Shares = $1,842.31M / 20.0M = $92.12 per share
+  </div>
+
+  <h3>3.3. 2D Sensitivity Matrix: Share Price ($)</h3>
+  <p>
+    Displays share price sensitivity across WACC ($7.0\% - 11.0\%$) and Long-Term Growth ($1.5\% - 3.5\%$):
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>WACC \ LTG</th>
+        <th class="text-right">1.5%</th>
+        <th class="text-right">2.0%</th>
+        <th class="text-right">2.5% (Baseline)</th>
+        <th class="text-right">3.0%</th>
+        <th class="text-right">3.5%</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>7.0%</strong></td>
+        <td class="text-right">$114.9</td>
+        <td class="text-right">$125.1</td>
+        <td class="text-right">$137.5</td>
+        <td class="text-right">$153.1</td>
+        <td class="text-right">$173.1</td>
+      </tr>
+      <tr>
+        <td><strong>8.0%</strong></td>
+        <td class="text-right">$95.6</td>
+        <td class="text-right">$102.5</td>
+        <td class="text-right">$110.7</td>
+        <td class="text-right">$120.5</td>
+        <td class="text-right">$132.5</td>
+      </tr>
+      <tr style="background-color: #dbeafe;">
+        <td><strong>9.0% (Baseline)</strong></td>
+        <td class="text-right">$81.4</td>
+        <td class="text-right">$86.4</td>
+        <td class="text-right"><strong>$92.1 &star;</strong></td>
+        <td class="text-right">$98.8</td>
+        <td class="text-right">$106.7</td>
+      </tr>
+      <tr>
+        <td><strong>10.0%</strong></td>
+        <td class="text-right">$70.6</td>
+        <td class="text-right">$74.3</td>
+        <td class="text-right">$78.5</td>
+        <td class="text-right">$83.3</td>
+        <td class="text-right">$88.8</td>
+      </tr>
+      <tr>
+        <td><strong>11.0%</strong></td>
+        <td class="text-right">$62.1</td>
+        <td class="text-right">$65.0</td>
+        <td class="text-right">$68.1</td>
+        <td class="text-right">$71.7</td>
+        <td class="text-right">$75.7</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 4: Reverse DCF & Section 5: DuPont -->
+  <h2 class="section-break">4. Reverse DCF: Solving Market-Implied Growth Rates</h2>
+  <p>
+    <strong>Reverse DCF</strong> inverts the valuation equation: given the observable market stock price $P_{\text{market}}$, it solves for the 5-year annual growth rate ($g_1^*$) implied by the market.
+  </p>
+  <div class="formula-box">
+    Target Enterprise Value = P_market &times; Shares + Total Debt - Cash<br>
+    f(g_1) = IntrinsicValue(g_1) - P_market = 0
+  </div>
+  <ul>
+    <li><strong>Primary Solver (<code>scipy.optimize.brentq</code>)</strong>: Brent's hybrid root-finding algorithm converges to $10^{-6}$ tolerance in &lt; 10 iterations.</li>
+    <li><strong>Binary Search Fallback</strong>: Custom bisection solver with dynamic bracket expansion guarantees execution across all environments.</li>
+    <li><strong>Verification</strong>: Evaluates forward DCF on $g_1^*$ to prove convergence with <code>|validation_price - target_price| &lt; 1e-4</code>.</li>
+  </ul>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Market Share Price</th>
+        <th class="text-right">Implied 5-Yr Growth Rate</th>
+        <th class="text-right">Target Enterprise Value</th>
+        <th>Market Interpretation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>$60.00</strong> (Discount)</td>
+        <td class="text-right"><strong>-1.05%</strong></td>
+        <td class="text-right">$1,350.0M</td>
+        <td>Priced for cash flow contraction</td>
+      </tr>
+      <tr>
+        <td><strong>$75.00</strong></td>
+        <td class="text-right"><strong>+3.55%</strong></td>
+        <td class="text-right">$1,650.0M</td>
+        <td>Priced for conservative GDP-like growth</td>
+      </tr>
+      <tr style="background-color: #dbeafe;">
+        <td><strong>$92.12</strong> (Baseline)</td>
+        <td class="text-right"><strong>+8.00%</strong></td>
+        <td class="text-right">$1,992.4M</td>
+        <td>Exact benchmark parity</td>
+      </tr>
+      <tr>
+        <td><strong>$110.00</strong> (Premium)</td>
+        <td class="text-right"><strong>+12.01%</strong></td>
+        <td class="text-right">$2,350.0M</td>
+        <td>Priced for double-digit growth</td>
+      </tr>
+      <tr>
+        <td><strong>$140.00</strong> (High Growth)</td>
+        <td class="text-right"><strong>+17.71%</strong></td>
+        <td class="text-right">$2,950.0M</td>
+        <td>Requires aggressive market expansion</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>5. 3-Stage DuPont ROE Decomposition & Delta Attribution</h2>
+  <p>
+    Deconstructs Return on Equity (ROE) into operational profitability, asset turnover, and financial leverage:
+  </p>
+  <div class="formula-box">
+    ROE = (Net Income / Revenue) &times; (Revenue / Total Assets) &times; (Total Assets / Equity)<br>
+    ROE = Net Profit Margin &times; Asset Turnover &times; Equity Multiplier
+  </div>
+
+  <h3>5.1. Exact-Path Sequential Delta Attribution</h3>
+  <p>
+    When comparing two periods ($T_0 \to T_1$), sequential path substitution attributes changes with <strong>0% residual</strong>:
+  </p>
+  <div class="formula-box">
+    &Delta; ROE = Margin Effect + Turnover Effect + Leverage Effect<br>
+    &bull; Margin Effect = (Margin_1 - Margin_0) &times; Turnover_0 &times; Leverage_0<br>
+    &bull; Turnover Effect = Margin_1 &times; (Turnover_1 - Turnover_0) &times; Leverage_0<br>
+    &bull; Leverage Effect = Margin_1 &times; Turnover_1 &times; (Leverage_1 - Leverage_0)
+  </div>
+  <div class="callout-blue">
+    <strong>Benchmark Case Study:</strong><br>
+    Period $T_0$: Margin = 10.0%, Turnover = 0.80x, Leverage = 2.50x &rarr; <strong>ROE = 20.0%</strong><br>
+    Period $T_1$: Margin = 12.0%, Turnover = 0.83x, Leverage = 2.40x &rarr; <strong>ROE = 24.0%</strong> (&Delta; ROE = +4.0%)<br>
+    &bull; Margin Expansion: <strong>+4.00%</strong> (100% of gain) &bull; Asset Turnover: <strong>+1.00%</strong> (+25% of gain) &bull; Deleveraging: <strong>-1.00%</strong> (-25% drag).
+  </div>
+
+  <!-- Section 6 & 7: Ingestion & Deployment -->
+  <h2 class="section-break">6. Live Ingestion, Multi-Currency & Error Boundaries</h2>
+  <ul>
+    <li><strong>Multi-Currency Auto-Detection</strong>: Ingested tickers automatically format the entire dashboard in reporting currency (e.g. <code>₹</code> for <code>TATASTEEL.NS</code>, <code>$</code> for <code>AAPL</code>, <code>€</code> for <code>MC.PA</code>, <code>£</code> for <code>AZN.L</code>, <code>¥</code> for <code>7203.T</code>). Includes a manual currency override selector.</li>
+    <li><strong>In-Memory TTL Caching</strong>: Thread-safe cache with a 300-second TTL prevents repeated API calls and eliminates rate-limiting.</li>
+    <li><strong>Graceful Error Boundaries</strong>: Empty-input guards, custom <code>TickerNotFoundError</code> handlers with international exchange suffix guidance, and balance sheet disclosure disclosures ensure the app never crashes.</li>
+  </ul>
+
+  <h2>7. Production Deployment & Cloud Infrastructure</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 30%;">Component</th>
+        <th style="width: 70%;">Specification & Implementation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Theme Configuration</strong></td>
+        <td><code>.streamlit/config.toml</code>: Obsidian dark palette (<code>#0b0f17</code> background, <code>#3b82f6</code> accent), headless server mode, telemetry disabled.</td>
+      </tr>
+      <tr>
+        <td><strong>Dependencies</strong></td>
+        <td><code>requirements.txt</code>: Constrained versions of <code>streamlit</code>, <code>plotly</code>, <code>yfinance</code>, <code>scipy</code>, <code>pandas</code>, <code>numpy</code>, <code>pydantic</code>, and <code>pytest</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Streamlit Cloud Deploy</strong></td>
+        <td>Deploy from GitHub repo <code>ivahcomworkspace-droid/dcf-valuation-model</code> &rarr; Main file path: <code>dashboard/app.py</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Quality Assurance</strong></td>
+        <td><code>python -m pytest tests/ -v</code>: 14 passing unit tests covering DCF math, reverse DCF parity, DuPont attribution, and currency resolution.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>DCF Valuation & Financial Analytics Platform &bull; Technical Reference Manual</span>
+    <span>https://github.com/ivahcomworkspace-droid/dcf-valuation-model &bull; October 2026</span>
+  </div>
+
+</body>
+</html>
