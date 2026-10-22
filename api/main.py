@@ -29,6 +29,7 @@ from fin_engine.dcf import (
 )
 from fin_engine.reverse_dcf import solve_implied_growth
 from fin_engine.dupont import calculate_dupont_3stage, decompose_dupont_delta
+from fin_engine.wacc import calculate_dynamic_wacc, calculate_wacc, calculate_cost_of_equity
 from services.ingestion import MarketDataService, TickerNotFoundError
 
 logger = logging.getLogger(__name__)
@@ -154,6 +155,32 @@ class SensitivityResponse(BaseModel):
     matrix: List[List[Optional[float]]]
 
 
+class WACCRequest(BaseModel):
+    price: float = Field(..., gt=0, description="Share price")
+    shares: float = Field(..., gt=0, description="Diluted shares in Millions")
+    debt: float = Field(default=0.0, ge=0, description="Total debt in Millions")
+    beta: float = Field(default=1.0, description="Beta")
+    currency: str = Field(default="USD", description="Reporting currency")
+    tax_rate: Optional[float] = Field(default=None, description="Effective corporate tax rate as decimal")
+    interest_expense: Optional[float] = Field(default=None, description="Interest expense in Millions")
+    risk_free_rate: Optional[float] = Field(default=None, description="Risk-free rate as decimal")
+    equity_risk_premium: float = Field(default=0.055, description="Equity risk premium as decimal")
+
+
+class WACCResponse(BaseModel):
+    wacc: float
+    wacc_pct: float
+    cost_of_equity: float
+    cost_of_equity_pct: float
+    cost_of_debt: float
+    cost_of_debt_pct: float
+    equity_weight: float
+    debt_weight: float
+    risk_free_rate: float
+    beta: float
+    tax_rate: float
+
+
 class TickerSearchResultItem(BaseModel):
     symbol: str
     name: str
@@ -227,7 +254,8 @@ async def search_ticker(q: str = Query(default="", description="Search query str
 async def get_ticker_data(symbol: str):
     """
     Fetches comprehensive live market and financial data for a selected ticker symbol.
-    Auto-populates current share price, currency, diluted shares, cash, debt, and base FCFF.
+    Auto-populates current share price, currency, diluted shares, cash, debt, base FCFF,
+    DuPont line items, and dynamically computed CAPM WACC.
     """
     sym = symbol.strip().upper()
     try:
@@ -247,6 +275,17 @@ async def get_ticker_data(symbol: str):
         except Exception:
             pass
 
+        # Calculate dynamic CAPM WACC using pure fin_engine
+        wacc_info = calculate_dynamic_wacc(
+            price=snap.current_price,
+            shares=snap.diluted_shares,
+            debt=snap.total_debt,
+            beta=snap.beta or 1.0,
+            currency=snap.currency,
+            tax_rate=fin.effective_tax_rate if fin else None,
+            interest_expense=snap.interest_expense,
+        )
+
         return {
             "symbol": snap.ticker,
             "company_name": snap.company_name or snap.ticker,
@@ -260,17 +299,63 @@ async def get_ticker_data(symbol: str):
             "beta": snap.beta or 1.0,
             "market_cap": snap.market_cap,
             "base_fcff": base_fcff,
+            "ebit": fin.ebit if fin else None,
+            "effective_tax_rate": fin.effective_tax_rate if fin else None,
+            "depreciation_amortization": fin.depreciation_amortization if fin else None,
+            "capital_expenditures": fin.capital_expenditures if fin else None,
+            "change_in_working_capital": fin.change_in_working_capital if fin else None,
             "domain": domain,
             "revenue": fin.revenue if fin else None,
             "net_income": fin.net_income if fin else None,
             "total_assets": fin.total_assets if fin else None,
             "total_equity": fin.total_equity if fin else None,
+            "wacc": round(wacc_info["wacc"] * 100.0, 2),
+            "wacc_decimal": wacc_info["wacc"],
+            "cost_of_equity": round(wacc_info["cost_of_equity"] * 100.0, 2),
+            "cost_of_debt": round(wacc_info["cost_of_debt"] * 100.0, 2),
+            "risk_free_rate": round(wacc_info["risk_free_rate"] * 100.0, 2),
             "warnings": bundle.warnings
         }
     except TickerNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Could not load data for ticker '{sym}': {str(e)}")
+
+
+@app.post("/api/v1/valuation/wacc", response_model=WACCResponse, tags=["Valuation"])
+async def calculate_wacc_endpoint(req: WACCRequest):
+    """
+    Computes dynamic CAPM Cost of Equity, Cost of Debt, and WACC using fin_engine.wacc.
+    """
+    try:
+        res = calculate_dynamic_wacc(
+            price=req.price,
+            shares=req.shares,
+            debt=req.debt,
+            beta=req.beta,
+            currency=req.currency,
+            tax_rate=req.tax_rate,
+            interest_expense=req.interest_expense,
+            risk_free_rate=req.risk_free_rate,
+            equity_risk_premium=req.equity_risk_premium,
+        )
+        return WACCResponse(
+            wacc=res["wacc"],
+            wacc_pct=res["wacc"] * 100.0,
+            cost_of_equity=res["cost_of_equity"],
+            cost_of_equity_pct=res["cost_of_equity"] * 100.0,
+            cost_of_debt=res["cost_of_debt"],
+            cost_of_debt_pct=res["cost_of_debt"] * 100.0,
+            equity_weight=res["equity_weight"],
+            debt_weight=res["debt_weight"],
+            risk_free_rate=res["risk_free_rate"],
+            beta=res["beta"],
+            tax_rate=res["tax_rate"],
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.post("/api/v1/valuation/dcf", response_model=DCFValuationResponse, tags=["Valuation"])

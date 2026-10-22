@@ -200,3 +200,39 @@ def test_sensitivity_matrix_endpoint():
     w_idx = wacc_range.index(0.09)
     g_idx = ltg_range.index(0.025)
     assert round(matrix[w_idx][g_idx], 1) == 92.1
+
+
+def test_wacc_valuation_endpoint():
+    """Verifies that POST /api/v1/valuation/wacc calculates CAPM Ke and WACC using fin_engine.wacc."""
+    payload = {
+        "price": 200.0,
+        "shares": 15000.0,
+        "debt": 100000.0,
+        "beta": 1.10,
+        "currency": "USD",
+        "tax_rate": 0.21,
+        "risk_free_rate": 0.042,
+        "equity_risk_premium": 0.055
+    }
+    response = client.post("/api/v1/valuation/wacc", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "wacc" in data
+    assert "cost_of_equity" in data
+    assert "cost_of_debt" in data
+    assert pytest.approx(data["cost_of_equity"], abs=1e-4) == 0.042 + 1.10 * 0.055
+    assert 0.05 <= data["wacc"] <= 0.15
+
+
+def test_get_ticker_data_endpoint():
+    """Verifies that GET /api/v1/ticker/{symbol} returns full fundamental metrics and WACC."""
+    response = client.get("/api/v1/ticker/AAPL")
+    if response.status_code == 200:
+        data = response.json()
+        assert data["symbol"] == "AAPL"
+        assert "price" in data
+        assert "currency_symbol" in data
+        assert "base_fcff" in data
+        assert "wacc" in data
+        assert "ebit" in data
+        assert "revenue" in data

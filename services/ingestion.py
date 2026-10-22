@@ -179,24 +179,59 @@ class MarketDataService:
             raw_net_income = info.get("netIncomeToCommon") or info.get("netIncome")
             currency = info.get("currency") or "USD"
 
+            inc = getattr(yf_ticker, "income_stmt", None)
+            cf = getattr(yf_ticker, "cashflow", None)
+            bs = getattr(yf_ticker, "balance_sheet", None)
+
+            def _get_val(df, keys):
+                if df is not None and not df.empty:
+                    for k in keys:
+                        if k in df.index:
+                            try:
+                                v = df.loc[k].dropna().iloc[0]
+                                return float(v)
+                            except Exception:
+                                pass
+                return None
+
             # Balance sheet items
-            raw_assets = None
-            raw_equity = None
-            try:
-                bs = yf_ticker.balance_sheet
-                if bs is not None and not bs.empty:
-                    if "Total Assets" in bs.index:
-                        raw_assets = float(bs.loc["Total Assets"].iloc[0])
-                    if "Stockholders Equity" in bs.index:
-                        raw_equity = float(bs.loc["Stockholders Equity"].iloc[0])
-                    elif "Total Stockholder Equity" in bs.index:
-                        raw_equity = float(bs.loc["Total Stockholder Equity"].iloc[0])
-            except Exception:
-                pass
+            raw_assets = _get_val(bs, ["Total Assets"])
+            raw_equity = _get_val(bs, ["Stockholders Equity", "Total Stockholder Equity", "Common Stock Equity"])
 
             # Cash flow items
-            raw_ocf = info.get("operatingCashflow")
-            raw_fcf = info.get("freeCashflow")
+            raw_ocf = info.get("operatingCashflow") or _get_val(cf, ["Operating Cash Flow", "Cash Flow From Continuing Operating Activities"])
+            raw_fcf = info.get("freeCashflow") or _get_val(cf, ["Free Cash Flow"])
+
+            # Fundamental FCFF items: EBIT, Tax Rate, D&A, CapEx, ΔNWC
+            raw_ebit = _get_val(inc, ["EBIT", "Operating Income", "Normalized EBITDA"]) or info.get("operatingIncome")
+            raw_dna = _get_val(cf, ["Depreciation & Amortization", "Depreciation And Amortization", "Reconciled Depreciation"])
+            if raw_dna is None:
+                raw_dna = _get_val(inc, ["Reconciled Depreciation", "Depreciation & Amortization"])
+
+            raw_capex = _get_val(cf, ["Capital Expenditure", "Capital Expenditures"])
+            if raw_capex is not None:
+                raw_capex = abs(raw_capex)
+            elif info.get("capitalExpenditures"):
+                raw_capex = abs(float(info.get("capitalExpenditures")))
+
+            raw_dnwc = _get_val(cf, ["Change In Working Capital", "Changes In Working Capital"]) or 0.0
+
+            # Tax Rate resolution
+            raw_tax_rate = _get_val(inc, ["Tax Rate For Calcs"])
+            if raw_tax_rate is None or raw_tax_rate <= 0 or raw_tax_rate >= 0.70:
+                raw_tax_prov = _get_val(inc, ["Tax Provision"]) or 0.0
+                raw_pretax = _get_val(inc, ["Pretax Income"]) or 0.0
+                if raw_pretax > 0 and raw_tax_prov > 0:
+                    raw_tax_rate = raw_tax_prov / raw_pretax
+                else:
+                    raw_tax_rate = 0.25 if currency.upper() == "INR" else 0.21
+
+            # Formula-derived FCFF = EBIT*(1-t) + D&A - CapEx - ΔNWC
+            computed_fcff = None
+            if raw_ebit is not None and raw_dna is not None and raw_capex is not None:
+                fcff_val = (raw_ebit * (1.0 - raw_tax_rate) + raw_dna - raw_capex - raw_dnwc) / 1e6
+                if fcff_val > 0:
+                    computed_fcff = fcff_val
 
             if not raw_revenue or raw_revenue <= 0:
                 return None
@@ -209,7 +244,13 @@ class MarketDataService:
                 total_assets=float(raw_assets) / 1e6 if raw_assets else float(raw_revenue) / 1e6,
                 total_equity=float(raw_equity) / 1e6 if raw_equity else (float(raw_assets or raw_revenue) * 0.5) / 1e6,
                 operating_cash_flow=float(raw_ocf) / 1e6 if raw_ocf else None,
+                capital_expenditures=float(raw_capex) / 1e6 if raw_capex else None,
                 free_cash_flow=float(raw_fcf) / 1e6 if raw_fcf else None,
+                ebit=float(raw_ebit) / 1e6 if raw_ebit else None,
+                effective_tax_rate=float(raw_tax_rate),
+                depreciation_amortization=float(raw_dna) / 1e6 if raw_dna else None,
+                change_in_working_capital=float(raw_dnwc) / 1e6 if raw_dnwc else None,
+                computed_fcff=computed_fcff,
             )
 
             # Store in cache

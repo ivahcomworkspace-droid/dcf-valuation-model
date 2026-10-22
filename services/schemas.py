@@ -82,6 +82,10 @@ class FinancialStatementItems(BaseModel):
     capital_expenditures: Optional[float] = Field(default=None, description="Capital expenditures (Millions)")
     free_cash_flow: Optional[float] = Field(default=None, description="Free cash flow (Millions)")
     ebit: Optional[float] = Field(default=None, description="Earnings Before Interest & Taxes (Millions)")
+    effective_tax_rate: Optional[float] = Field(default=None, description="Effective corporate tax rate as decimal")
+    depreciation_amortization: Optional[float] = Field(default=None, description="Depreciation & Amortization (Millions)")
+    change_in_working_capital: Optional[float] = Field(default=None, description="Change in non-cash working capital (Millions)")
+    computed_fcff: Optional[float] = Field(default=None, description="Formula-derived FCFF = EBIT*(1-t) + D&A - CapEx - ΔNWC (Millions)")
 
     @field_validator("ticker")
     @classmethod
@@ -96,13 +100,17 @@ class DCFIngestionBundle(BaseModel):
     warnings: List[str] = Field(default_factory=list)
 
     def infer_base_fcff(self) -> float:
-        """Determines base FCFF from financials if available, or estimates from OCF - CapEx."""
-        if self.financials and self.financials.free_cash_flow is not None and self.financials.free_cash_flow > 0:
-            return self.financials.free_cash_flow
-        if self.financials and self.financials.operating_cash_flow is not None and self.financials.capital_expenditures is not None:
-            fcf = self.financials.operating_cash_flow - abs(self.financials.capital_expenditures)
-            if fcf > 0:
-                return fcf
-        if self.financials and self.financials.net_income is not None and self.financials.net_income > 0:
-            return self.financials.net_income
+        """Determines base FCFF from fundamental formula EBIT*(1-t) + D&A - CapEx - ΔNWC,
+        or reported free cash flow, or operating cash flow minus CapEx."""
+        if self.financials:
+            if self.financials.computed_fcff is not None and self.financials.computed_fcff > 0:
+                return self.financials.computed_fcff
+            if self.financials.free_cash_flow is not None and self.financials.free_cash_flow > 0:
+                return self.financials.free_cash_flow
+            if self.financials.operating_cash_flow is not None and self.financials.capital_expenditures is not None:
+                fcf = self.financials.operating_cash_flow - abs(self.financials.capital_expenditures)
+                if fcf > 0:
+                    return fcf
+            if self.financials.net_income is not None and self.financials.net_income > 0:
+                return self.financials.net_income
         return 100.0

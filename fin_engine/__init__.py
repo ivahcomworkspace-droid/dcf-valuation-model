@@ -20,6 +20,11 @@ from fin_engine.dupont import (
     calculate_dupont_3stage,
     decompose_dupont_delta,
 )
+from fin_engine.wacc import (
+    calculate_cost_of_equity,
+    calculate_wacc,
+    calculate_dynamic_wacc,
+)
 
 __all__ = [
     "DCFParameters",
@@ -32,4 +37,7 @@ __all__ = [
     "DuPont3StageResult",
     "calculate_dupont_3stage",
     "decompose_dupont_delta",
+    "calculate_cost_of_equity",
+    "calculate_wacc",
+    "calculate_dynamic_wacc",
 ]

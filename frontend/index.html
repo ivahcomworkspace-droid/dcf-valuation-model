@@ -230,6 +230,13 @@
             <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot inline-block"></span>
             Engine Online
           </div>
+          <div id="calculatingBadge" class="hidden flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/15 border border-cyan-400/40 text-cyan-300 font-mono text-[11px] font-medium shadow-sm">
+            <svg class="animate-spin w-3 h-3 text-cyan-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Calculating via fin_engine...</span>
+          </div>
           <div class="hidden sm:flex items-center gap-1.5 font-mono text-xs text-slate-400">
             <span>Core:</span>
             <span class="text-blue-400 font-semibold">FastAPI v2.0</span>
@@ -431,7 +438,7 @@
                 <span class="text-slate-300 font-medium">5-Yr Growth Rate (g₁)</span>
                 <span id="badgeGrowthRate" class="text-cyan-400 font-mono font-bold">8.0%</span>
               </div>
-              <input type="range" id="sliderGrowthRate" min="-10" max="30" step="0.5" value="8.0">
+              <input type="range" id="sliderGrowthRate" min="-20" max="60" step="0.5" value="8.0">
             </div>
 
             <!-- WACC -->
@@ -676,6 +683,21 @@
     const tickerSearchInput = document.getElementById('tickerSearchInput');
     const searchDropdown = document.getElementById('searchDropdown');
     const searchSpinner = document.getElementById('searchSpinner');
+    const calculatingBadge = document.getElementById('calculatingBadge');
+
+    let activeCalcCounter = 0;
+    function showCalculating(show) {
+      if (!calculatingBadge) return;
+      if (show) {
+        activeCalcCounter++;
+        calculatingBadge.classList.remove('hidden');
+      } else {
+        activeCalcCounter = Math.max(0, activeCalcCounter - 1);
+        if (activeCalcCounter === 0) {
+          calculatingBadge.classList.add('hidden');
+        }
+      }
+    }
 
     // Chart.js instance
     let cashFlowChartInstance = null;
@@ -1050,11 +1072,37 @@
       searchDropdown.classList.remove('hidden');
     }
 
+    // Batch recalculation orchestrator with loading state
+    let recalcDebounceTimer = null;
+    function triggerRecalculationDebounced(delay = 80) {
+      clearTimeout(recalcDebounceTimer);
+      recalcDebounceTimer = setTimeout(() => {
+        recalculateAll();
+      }, delay);
+    }
+
+    async function recalculateAll() {
+      showCalculating(true);
+      try {
+        await Promise.all([
+          evaluateDCF(),
+          evaluateSensitivity(),
+          solveReverseDCF(),
+          evaluateDuPont()
+        ]);
+      } catch (err) {
+        console.error("Batch recalculation error:", err);
+      } finally {
+        showCalculating(false);
+      }
+    }
+
     // Load selected ticker from backend
     window.loadTicker = async function(symbol) {
       searchDropdown.classList.add('hidden');
       tickerSearchInput.value = symbol;
       searchSpinner.classList.remove('hidden');
+      showCalculating(true);
 
       try {
         const res = await fetch(`/api/v1/ticker/${encodeURIComponent(symbol)}`);
@@ -1066,48 +1114,64 @@
 
         const data = await res.json();
         
-        // Update State
+        // Update State with genuine financial metrics
         state.ticker = data.symbol;
         state.companyName = data.company_name;
         state.currency = data.currency;
         state.currencySymbol = data.currency_symbol || '$';
-        state.marketPrice = data.price;
-        state.shares = data.diluted_shares;
-        state.cash = data.cash;
-        state.debt = data.debt;
+        state.marketPrice = Number(data.price.toFixed(2));
+        state.shares = Number(data.diluted_shares.toFixed(1));
+        state.cash = Number(data.cash.toFixed(1));
+        state.debt = Number(data.debt.toFixed(1));
         if (data.base_fcff && data.base_fcff > 0) {
-          state.baseFCFF = data.base_fcff;
+          state.baseFCFF = Number(data.base_fcff.toFixed(1));
+        }
+        if (data.wacc && data.wacc > 0) {
+          state.wacc = Math.min(18.0, Math.max(5.0, Number(data.wacc.toFixed(1))));
         }
         if (data.revenue) state.revenue = data.revenue;
         if (data.net_income) state.netIncome = data.net_income;
         if (data.total_assets) state.totalAssets = data.total_assets;
         if (data.total_equity) state.totalEquity = data.total_equity;
 
-        // Update UI Banner
+        // Dynamically scale Base FCFF slider for institutional scale
+        const maxFCFF = Math.max(500, Math.ceil(state.baseFCFF * 2.5));
+        const minFCFF = Math.min(0, Math.floor(state.baseFCFF * 0.2));
+        sliderBaseFCFF.min = minFCFF;
+        sliderBaseFCFF.max = maxFCFF;
+        sliderBaseFCFF.step = Math.max(1, Math.round(state.baseFCFF / 100));
+        sliderBaseFCFF.value = state.baseFCFF;
+
+        // Update Slider & Input values
+        sliderWACC.value = state.wacc;
+        sliderPerpetualGrowth.value = state.perpetualGrowth;
+        inputShares.value = state.shares;
+        inputCash.value = state.cash;
+        inputDebt.value = state.debt;
+        inputReversePrice.value = state.marketPrice.toFixed(2);
+
+        // Update UI Banner & Typography
         companyNameText.textContent = data.company_name;
         tickerSymbolBadge.textContent = data.symbol;
-        currencyDisplay.textContent = `${data.currency} (${data.currency_symbol})`;
+        currencyDisplay.textContent = `${data.currency} (${data.currency_symbol || '$'})`;
         marketPriceDisplay.textContent = fmt(data.price, 2);
-        sharesSummaryDisplay.textContent = `${data.diluted_shares.toFixed(1)}M`;
+        sharesSummaryDisplay.textContent = `${state.shares.toFixed(1)}M`;
         companyLogoInitials.textContent = data.symbol.slice(0, 2);
         exchangeBadge.textContent = "LIVE";
 
-        // Update Inputs
-        inputShares.value = data.diluted_shares;
-        inputCash.value = data.cash;
-        inputDebt.value = data.debt;
-        inputReversePrice.value = data.price.toFixed(2);
-        sliderBaseFCFF.value = state.baseFCFF;
+        badgeBaseFCFF.textContent = fmt(state.baseFCFF, 0) + 'M';
+        badgeWACC.textContent = state.wacc.toFixed(1) + '%';
+        badgeGrowthRate.textContent = state.growthRate.toFixed(1) + '%';
+        badgePerpetualGrowth.textContent = state.perpetualGrowth.toFixed(1) + '%';
 
-        // Re-evaluate
-        evaluateDCF();
-        evaluateSensitivity();
-        solveReverseDCF();
-        evaluateDuPont();
+        // Trigger batch recalculation via Python fin_engine
+        await recalculateAll();
 
       } catch (err) {
         searchSpinner.classList.add('hidden');
         console.error('Error loading ticker:', err);
+      } finally {
+        showCalculating(false);
       }
     };
 
@@ -1118,48 +1182,48 @@
       }
     });
 
-    // Slider Event Listeners
+    // Slider Event Listeners with Debounced Recalculation
     sliderBaseFCFF.addEventListener('input', (e) => {
       state.baseFCFF = parseFloat(e.target.value);
-      evaluateDCF();
-      evaluateSensitivity();
+      badgeBaseFCFF.textContent = fmt(state.baseFCFF, 0) + 'M';
+      triggerRecalculationDebounced();
     });
 
     sliderGrowthRate.addEventListener('input', (e) => {
       state.growthRate = parseFloat(e.target.value);
-      evaluateDCF();
-      evaluateSensitivity();
+      badgeGrowthRate.textContent = state.growthRate.toFixed(1) + '%';
+      triggerRecalculationDebounced();
     });
 
     sliderWACC.addEventListener('input', (e) => {
       state.wacc = parseFloat(e.target.value);
-      evaluateDCF();
-      evaluateSensitivity();
+      badgeWACC.textContent = state.wacc.toFixed(1) + '%';
+      triggerRecalculationDebounced();
     });
 
     sliderPerpetualGrowth.addEventListener('input', (e) => {
       state.perpetualGrowth = parseFloat(e.target.value);
-      evaluateDCF();
-      evaluateSensitivity();
+      badgePerpetualGrowth.textContent = state.perpetualGrowth.toFixed(1) + '%';
+      triggerRecalculationDebounced();
     });
 
     // Capital Structure Inputs
     inputShares.addEventListener('input', (e) => {
       state.shares = Math.max(0.01, parseFloat(e.target.value) || 1);
-      evaluateDCF();
-      evaluateSensitivity();
+      sharesSummaryDisplay.textContent = `${state.shares.toFixed(1)}M`;
+      triggerRecalculationDebounced();
     });
 
     inputCash.addEventListener('input', (e) => {
       state.cash = parseFloat(e.target.value) || 0;
-      evaluateDCF();
-      evaluateSensitivity();
+      kpiCashDisplay.textContent = fmt(state.cash, 0) + 'M';
+      triggerRecalculationDebounced();
     });
 
     inputDebt.addEventListener('input', (e) => {
       state.debt = parseFloat(e.target.value) || 0;
-      evaluateDCF();
-      evaluateSensitivity();
+      kpiDebtDisplay.textContent = fmt(state.debt, 0) + 'M';
+      triggerRecalculationDebounced();
     });
 
     // Reverse DCF Solve Button
@@ -1182,6 +1246,10 @@
           state.shares = 20.0;
           state.cash = 50.0;
           state.debt = 200.0;
+          state.netIncome = 120.0;
+          state.revenue = 1000.0;
+          state.totalAssets = 800.0;
+          state.totalEquity = 400.0;
 
           companyNameText.textContent = state.companyName;
           tickerSymbolBadge.textContent = state.ticker;
@@ -1191,6 +1259,9 @@
           companyLogoInitials.textContent = "QK";
           exchangeBadge.textContent = "PRO-MODEL";
 
+          sliderBaseFCFF.min = 5;
+          sliderBaseFCFF.max = 500;
+          sliderBaseFCFF.step = 5;
           sliderBaseFCFF.value = 100;
           sliderGrowthRate.value = 8.0;
           sliderWACC.value = 9.0;
@@ -1200,10 +1271,12 @@
           inputDebt.value = 200;
           inputReversePrice.value = 92.12;
 
-          evaluateDCF();
-          evaluateSensitivity();
-          solveReverseDCF();
-          evaluateDuPont();
+          badgeBaseFCFF.textContent = "$100M";
+          badgeGrowthRate.textContent = "8.0%";
+          badgeWACC.textContent = "9.0%";
+          badgePerpetualGrowth.textContent = "2.5%";
+
+          recalculateAll();
         } else {
           loadTicker(t);
         }
@@ -1272,10 +1345,7 @@
         setActiveNavTab(defaultTab);
       }
       initChart();
-      evaluateDCF();
-      evaluateSensitivity();
-      solveReverseDCF();
-      evaluateDuPont();
+      recalculateAll();
     });
   </script>
 </body>
