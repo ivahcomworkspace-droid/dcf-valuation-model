@@ -1133,65 +1133,9 @@
 
     // =========================================================================
     // MODULAR VIEW SWITCHING
+    // (Handled by self-contained client-side router script at end of body)
     // =========================================================================
-    window.switchView = function(viewId) {
-      const allViewIds = ['view-dashboard', 'view-dcf', 'view-reversedcf', 'view-dupont', 'view-heatmap'];
-
-      // Visibility State Logic:
-      allViewIds.forEach(id => {
-        const container = document.getElementById(id);
-        if (container) {
-          if (id === viewId) {
-            container.classList.remove('hidden');
-          } else {
-            container.classList.add('hidden');
-          }
-        }
-      });
-
-      // Scroll window smoothly to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      const mainVp = document.getElementById('mainViewport');
-      if (mainVp) {
-        mainVp.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      // Update active visual indicators on the sidebar buttons
-      document.querySelectorAll('.nav-tab').forEach(btn => {
-        const targetView = btn.getAttribute('data-target') || btn.getAttribute('data-view-target') || btn.getAttribute('data-view');
-        const isTarget = targetView === viewId;
-        const icon = btn.querySelector('svg');
-        if (isTarget) {
-          btn.className = "nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600/20 border border-blue-500/30 transition-all shadow-sm shadow-blue-500/20";
-          if (icon) {
-            icon.classList.add('text-cyan-400');
-            icon.classList.remove('text-slate-400');
-          }
-        } else {
-          btn.className = "nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 border border-transparent transition-all";
-          if (icon) {
-            icon.classList.remove('text-cyan-400');
-          }
-        }
-      });
-
-      // Trigger chart.resize() on any Chart.js instances within the unhidden view
-      const triggerChartUpdates = () => {
-        if (viewId === 'view-dcf' && cashFlowChartInstance) {
-          cashFlowChartInstance.resize();
-          cashFlowChartInstance.update();
-        } else if (viewId === 'view-reversedcf' && reverseDCFChartInstance) {
-          reverseDCFChartInstance.resize();
-          reverseDCFChartInstance.update();
-        }
-      };
-
-      triggerChartUpdates();
-      setTimeout(triggerChartUpdates, 50);
-    };
-
-    // Alias in local script scope
-    const switchView = window.switchView;
+    const switchView = (targetViewId) => window.switchView && window.switchView(targetViewId);
 
     // =========================================================================
     // CHART.JS INITIALIZATIONS
@@ -1986,7 +1930,6 @@
     }
   </script>
 
-  <!-- Client-Side View Router -->
   <script>
     const VIEW_IDS = ['view-dashboard', 'view-dcf', 'view-reversedcf', 'view-dupont', 'view-heatmap'];
 
@@ -2014,10 +1957,6 @@
         });
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        const mainVp = document.getElementById('mainViewport');
-        if (mainVp) {
-            mainVp.scrollTo({ top: 0, behavior: 'smooth' });
-        }
 
         // Trigger Chart.js recalculation / canvas reflow if hidden
         if (window.Chart) {
@@ -2034,16 +1973,6 @@
             });
         });
     });
-
-    if (document.readyState !== 'loading') {
-        document.querySelectorAll('.nav-tab').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = btn.getAttribute('data-target');
-                if (target) window.switchView(target);
-            });
-        });
-    }
   </script>
 </body>
 </html>
