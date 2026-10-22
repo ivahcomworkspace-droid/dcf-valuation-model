@@ -1,6 +1,6 @@
 """
 Unit and Integration Tests for FastAPI backend endpoints.
-Verifies HTTP status codes, Pydantic validation, and mathematical accuracy using TestClient.
+Verifies HTTP status codes, Pydantic validation, ticker search, and mathematical accuracy using TestClient.
 """
 
 import pytest
@@ -11,13 +11,42 @@ from api.main import app
 client = TestClient(app)
 
 
+def test_root_serves_frontend():
+    """Verifies that GET / serves the Quilet Terminal HTML frontend."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "QUILET TERMINAL" in response.text
+    assert "text/html" in response.headers.get("content-type", "")
+
+
 def test_health_check_endpoint():
     """Verifies that the /health endpoint returns 200 and expected status payload."""
     response = client.get("/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
-    assert "DCF Valuation" in data["service"]
+    assert "Quilet Terminal" in data["service"]
+
+
+def test_search_ticker_endpoint():
+    """Verifies that GET /api/v1/search/ticker returns structured suggestions."""
+    response = client.get("/api/v1/search/ticker?q=AAPL")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["query"] == "AAPL"
+    assert isinstance(data["results"], list)
+    if data["results"]:
+        first = data["results"][0]
+        assert "symbol" in first
+        assert "name" in first
+        assert "exchange" in first
+
+
+def test_search_ticker_empty_query():
+    """Verifies that an empty query returns an empty results list."""
+    response = client.get("/api/v1/search/ticker?q=")
+    assert response.status_code == 200
+    assert response.json()["results"] == []
 
 
 def test_dcf_valuation_endpoint_benchmark():

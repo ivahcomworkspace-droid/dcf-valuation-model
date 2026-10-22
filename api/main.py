@@ -1,11 +1,13 @@
 """
 FastAPI Backend Application
 Exposes the pure financial math engine (fin_engine) as an asynchronous, decoupled REST API.
+Serves the Quilet Terminal standalone frontend, ticker search, and valuation endpoints.
 """
 
 import os
 import sys
-from typing import List, Optional
+import logging
+from typing import List, Optional, Dict, Any
 
 # Ensure project root is in sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,8 +15,11 @@ root_dir = os.path.abspath(os.path.join(current_dir, ".."))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-from fastapi import FastAPI, HTTPException, status
+import httpx
+from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
 
 from fin_engine.dcf import (
@@ -24,13 +29,17 @@ from fin_engine.dcf import (
 )
 from fin_engine.reverse_dcf import solve_implied_growth
 from fin_engine.dupont import calculate_dupont_3stage, decompose_dupont_delta
+from services.ingestion import MarketDataService, TickerNotFoundError
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="DCF Valuation & Financial Analytics API",
-    version="1.0.0",
-    description="Decoupled institutional financial valuation backend API powered by pure fin_engine models."
+    title="Quilet Terminal API & Valuation Engine",
+    version="2.0.0",
+    description="Institutional-grade valuation backend API serving the Quilet Terminal frontend and pure fin_engine models."
 )
 
+# Enable CORS for all origins, methods, and headers
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -145,6 +154,19 @@ class SensitivityResponse(BaseModel):
     matrix: List[List[Optional[float]]]
 
 
+class TickerSearchResultItem(BaseModel):
+    symbol: str
+    name: str
+    exchange: str
+    sector: str
+    type: str
+
+
+class TickerSearchResponse(BaseModel):
+    query: str
+    results: List[TickerSearchResultItem]
+
+
 # ==========================================
 # REST API Endpoints
 # ==========================================
@@ -154,9 +176,101 @@ async def health_check():
     """Health check endpoint confirming API service status."""
     return {
         "status": "healthy",
-        "service": "DCF Valuation & Financial Analytics API",
-        "version": "1.0.0"
+        "service": "Quilet Terminal Valuation Engine",
+        "version": "2.0.0"
     }
+
+
+@app.get("/api/v1/search/ticker", response_model=TickerSearchResponse, tags=["Market Data"])
+async def search_ticker(q: str = Query(default="", description="Search query string")):
+    """
+    Queries Yahoo Finance search to return ticker suggestions (symbol, company name, exchange, sector).
+    """
+    clean_query = q.strip()
+    if not clean_query:
+        return TickerSearchResponse(query=q, results=[])
+
+    url = f"https://query2.finance.yahoo.com/v1/finance/search?q={clean_query}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            resp = await client.get(url, headers=headers)
+            if resp.status_code == 200:
+                data = resp.json()
+                raw_quotes = data.get("quotes", [])
+                results: List[TickerSearchResultItem] = []
+                for qitem in raw_quotes:
+                    sym = qitem.get("symbol")
+                    if not sym:
+                        continue
+                    name = qitem.get("shortname") or qitem.get("longname") or sym
+                    exchange = qitem.get("exchDisp") or qitem.get("exchange") or "US"
+                    sector = qitem.get("sectorDisp") or qitem.get("sector") or qitem.get("typeDisp") or "Equity"
+                    results.append(TickerSearchResultItem(
+                        symbol=sym,
+                        name=name,
+                        exchange=exchange,
+                        sector=sector,
+                        type=qitem.get("quoteType", "EQUITY")
+                    ))
+                return TickerSearchResponse(query=clean_query, results=results[:8])
+            return TickerSearchResponse(query=clean_query, results=[])
+    except Exception as e:
+        logger.error(f"Error querying Yahoo Finance search for '{clean_query}': {e}")
+        return TickerSearchResponse(query=clean_query, results=[])
+
+
+@app.get("/api/v1/ticker/{symbol}", tags=["Market Data"])
+async def get_ticker_data(symbol: str):
+    """
+    Fetches comprehensive live market and financial data for a selected ticker symbol.
+    Auto-populates current share price, currency, diluted shares, cash, debt, and base FCFF.
+    """
+    sym = symbol.strip().upper()
+    try:
+        svc = MarketDataService()
+        bundle = svc.fetch_bundle(sym, force_refresh=False)
+        snap = bundle.market_data
+        fin = bundle.financials
+        base_fcff = bundle.infer_base_fcff()
+
+        domain = ""
+        try:
+            import yfinance as yf
+            t = yf.Ticker(sym)
+            website = t.info.get("website", "")
+            if website:
+                domain = website.replace("https://", "").replace("http://", "").split("/")[0]
+        except Exception:
+            pass
+
+        return {
+            "symbol": snap.ticker,
+            "company_name": snap.company_name or snap.ticker,
+            "price": snap.current_price,
+            "currency": snap.currency,
+            "currency_symbol": snap.currency_symbol,
+            "diluted_shares": snap.diluted_shares,
+            "cash": snap.cash_and_equivalents,
+            "debt": snap.total_debt,
+            "net_debt": snap.net_debt,
+            "beta": snap.beta or 1.0,
+            "market_cap": snap.market_cap,
+            "base_fcff": base_fcff,
+            "domain": domain,
+            "revenue": fin.revenue if fin else None,
+            "net_income": fin.net_income if fin else None,
+            "total_assets": fin.total_assets if fin else None,
+            "total_equity": fin.total_equity if fin else None,
+            "warnings": bundle.warnings
+        }
+    except TickerNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Could not load data for ticker '{sym}': {str(e)}")
 
 
 @app.post("/api/v1/valuation/dcf", response_model=DCFValuationResponse, tags=["Valuation"])
@@ -314,3 +428,26 @@ async def sensitivity_matrix_endpoint(req: SensitivityRequest):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+# ==========================================
+# Frontend Static Files & SPA Route
+# ==========================================
+
+frontend_dir = os.path.join(root_dir, "frontend")
+if os.path.exists(frontend_dir):
+    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+
+@app.get("/", response_class=FileResponse, tags=["Frontend"])
+async def serve_root():
+    """Serves the Quilet Terminal frontend single-page application."""
+    index_file = os.path.join(root_dir, "frontend", "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return HTMLResponse("<h1>Quilet Terminal - Initializing Frontend...</h1>")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("api.main:app", host="0.0.0.0", port=port, reload=True)

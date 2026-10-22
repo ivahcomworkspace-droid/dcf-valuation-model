@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUILET TERMINAL | Institutional Valuation & Analytics</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              950: '#060911',
+              900: '#090d16',
+              850: '#0b0f19',
+              800: '#111726',
+              700: '#1a2236',
+            },
+            quilet: {
+              blue: '#3b82f6',
+              cyan: '#38bdf8',
+              violet: '#8b5cf6',
+              emerald: '#10b981',
+              rose: '#f43f5e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Glassmorphism & Aesthetics */
+    body {
+      background: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.15) 0%, rgba(9, 13, 22, 1) 75%);
+      min-height: 100vh;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .glass-card-highlight {
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(15, 23, 42, 0.75) 100%);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(59, 130, 246, 0.45);
+      box-shadow: 0 8px 32px 0 rgba(37, 99, 235, 0.2);
+    }
+
+    .glass-input {
+      background: rgba(9, 13, 22, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      transition: all 0.2s ease;
+    }
+    .glass-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+      outline: none;
+    }
+
+    /* Sleek Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Range Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #1e293b;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+      border: 2px solid #ffffff;
+      transition: transform 0.15s ease, background-color 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.18);
+      background: #60a5fa;
+    }
+
+    /* Pulsing Engine Dot */
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.9); }
+    }
+    .pulse-dot {
+      animation: pulse-glow 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Ambient Glow Effects in Background -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+  <!-- Main Container -->
+  <div class="flex h-screen overflow-hidden">
+    
+    <!-- LEFT VERTICAL NAVIGATION BAR -->
+    <aside class="w-16 md:w-60 border-r border-white/5 bg-obsidian-950/80 backdrop-blur-xl flex flex-col justify-between shrink-0 select-none z-30">
+      <div>
+        <!-- Brand Header -->
+        <div class="h-16 flex items-center gap-3 px-4 md:px-5 border-b border-white/5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center shrink-0">
+            <div class="w-full h-full bg-obsidian-950 rounded-[10px] flex items-center justify-center">
+              <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+          </div>
+          <div class="hidden md:block">
+            <span class="font-extrabold text-sm tracking-widest text-white block leading-none">QUILET</span>
+            <span class="text-[10px] font-mono tracking-wider text-slate-400 uppercase">Terminal 2.0</span>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="p-3 space-y-1">
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600/20 border border-blue-500/30 transition-all shadow-sm" data-tab="dashboard">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+            </svg>
+            <span class="hidden md:inline">Dashboard</span>
+          </button>
+
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="dcf-engine">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span class="hidden md:inline">DCF Engine</span>
+          </button>
+
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="reverse-dcf">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span class="hidden md:inline">Reverse DCF</span>
+          </button>
+
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="dupont-audit">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+            </svg>
+            <span class="hidden md:inline">DuPont Audit</span>
+          </button>
+
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="sensitivity-grid">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span class="hidden md:inline">2D Heatmap</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Quick Presets in Sidebar -->
+      <div class="p-3 border-t border-white/5 space-y-2 hidden md:block">
+        <span class="text-[10px] font-mono tracking-wider text-slate-500 uppercase px-1">Institutional Presets</span>
+        <div class="grid grid-cols-2 gap-1.5 text-xs font-mono">
+          <button class="preset-btn px-2 py-1.5 rounded-lg bg-obsidian-900 border border-white/5 hover:border-blue-500/40 text-slate-300 hover:text-white transition text-left" data-ticker="AAPL">AAPL</button>
+          <button class="preset-btn px-2 py-1.5 rounded-lg bg-obsidian-900 border border-white/5 hover:border-blue-500/40 text-slate-300 hover:text-white transition text-left" data-ticker="NVDA">NVDA</button>
+          <button class="preset-btn px-2 py-1.5 rounded-lg bg-obsidian-900 border border-white/5 hover:border-blue-500/40 text-slate-300 hover:text-white transition text-left" data-ticker="TATASTEEL.NS">TATA.NS</button>
+          <button class="preset-btn px-2 py-1.5 rounded-lg bg-obsidian-900 border border-white/5 hover:border-blue-500/40 text-slate-300 hover:text-white transition text-left" data-ticker="BASELINE">BASELINE</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN RIGHT VIEWPORT -->
+    <main class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
+      
+      <!-- TOP NAVIGATION & SEARCH RIBBON -->
+      <header class="h-16 border-b border-white/5 bg-obsidian-900/60 backdrop-blur-xl px-5 flex items-center justify-between shrink-0 sticky top-0 z-20">
+        
+        <!-- Live Status Pill & Active Ticker Badge -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-[11px] font-medium shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot inline-block"></span>
+            Engine Online
+          </div>
+          <div class="hidden sm:flex items-center gap-1.5 font-mono text-xs text-slate-400">
+            <span>Core:</span>
+            <span class="text-blue-400 font-semibold">FastAPI v2.0</span>
+          </div>
+        </div>
+
+        <!-- CENTER SEARCH BAR WITH AUTOCOMPLETE -->
+        <div class="relative w-72 md:w-96">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="tickerSearchInput" 
+              placeholder="Search ticker, company (e.g. AAPL, TATASTEEL.NS)..." 
+              class="glass-input w-full pl-9 pr-8 py-1.5 rounded-xl text-xs placeholder:text-slate-500 font-mono"
+              autocomplete="off"
+            />
+            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <div id="searchSpinner" class="hidden absolute right-2.5 top-2.5">
+              <svg class="animate-spin w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Autocomplete Floating Dropdown -->
+          <div id="searchDropdown" class="hidden absolute left-0 right-0 top-11 glass-card rounded-xl border border-blue-500/30 overflow-hidden shadow-2xl z-50 divide-y divide-white/5 max-h-72 overflow-y-auto">
+            <!-- Dynamic search results populated via JS -->
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div class="flex items-center gap-3">
+          <a href="/docs" target="_blank" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-slate-300 transition flex items-center gap-1.5">
+            <span>Swagger API</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
+      </header>
+
+      <!-- ACTIVE TICKER / BRANDING BANNER -->
+      <section class="px-5 pt-4">
+        <div class="glass-card rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <!-- Company Logo / Tile -->
+            <div id="companyLogoTile" class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-800 p-0.5 shadow-md shadow-blue-900/30 shrink-0 flex items-center justify-center font-extrabold text-white font-mono text-base">
+              <span id="companyLogoInitials">QK</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 id="companyNameText" class="text-base sm:text-lg font-bold text-white tracking-tight">Global Benchmark Baseline</h2>
+                <span id="tickerSymbolBadge" class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-400 font-mono text-xs font-bold border border-blue-500/30">BASELINE</span>
+                <span id="exchangeBadge" class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/5 text-slate-400 font-mono text-[10px] border border-white/10">PRO-MODEL</span>
+              </div>
+              <p class="text-xs text-slate-400 font-mono flex items-center gap-2 mt-0.5">
+                <span>Currency: <strong id="currencyDisplay" class="text-slate-200">USD ($)</strong></span>
+                <span>•</span>
+                <span>Market Price: <strong id="marketPriceDisplay" class="text-cyan-400">$92.12</strong></span>
+                <span>•</span>
+                <span>Diluted Shares: <strong id="sharesSummaryDisplay" class="text-slate-200">20.0M</strong></span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Margin of Safety / Dislocation Badge -->
+          <div class="flex items-center gap-3">
+            <div id="dislocationPill" class="px-3.5 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-mono text-xs font-semibold flex items-center gap-2 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+              <span id="dislocationText">Fair Value (Parity)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOP METRIC RIBBON (4 KPI Cards) -->
+      <section class="px-5 pt-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        
+        <!-- Card 1: Intrinsic Value -->
+        <div class="glass-card-highlight rounded-2xl p-4 relative overflow-hidden">
+          <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-300">
+            <span>INTRINSIC VALUE</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/30 text-cyan-300">PER SHARE</span>
+          </div>
+          <div class="mt-2 text-3xl font-extrabold font-mono text-cyan-400 tracking-tight" id="kpiIntrinsicValue">
+            $92.12
+          </div>
+          <div class="mt-1 text-xs text-slate-400 flex justify-between items-center">
+            <span>Derived Share Price</span>
+            <span class="text-slate-300 font-mono" id="kpiValuationDiff">0.0% diff</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Enterprise Value -->
+        <div class="glass-card rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            ENTERPRISE VALUE (EV)
+          </div>
+          <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEnterpriseValue">
+            $1,992M
+          </div>
+          <div class="mt-1 text-xs text-slate-400">
+            <span id="kpiTerminalValPct" class="text-blue-400 font-semibold font-mono">75.6%</span> Terminal Value
+          </div>
+        </div>
+
+        <!-- Card 3: Equity Value -->
+        <div class="glass-card rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            EQUITY VALUE
+          </div>
+          <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEquityValue">
+            $1,842M
+          </div>
+          <div class="mt-1 text-xs text-slate-400 font-mono">
+            EV + Cash - Debt
+          </div>
+        </div>
+
+        <!-- Card 4: Net Debt & Capital Structure -->
+        <div class="glass-card rounded-2xl p-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            NET DEBT (DEBT - CASH)
+          </div>
+          <div class="mt-2 text-3xl font-extrabold font-mono text-slate-200 tracking-tight" id="kpiNetDebt">
+            $150M
+          </div>
+          <div class="mt-1 text-xs text-slate-400 font-mono flex justify-between">
+            <span>Cash: <b id="kpiCashDisplay" class="text-slate-300">$50M</b></span>
+            <span>Debt: <b id="kpiDebtDisplay" class="text-slate-300">$200M</b></span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- MAIN CENTER PANEL: CHART + REALTIME PARAMETER SLIDERS -->
+      <section class="px-5 pt-3.5 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+        
+        <!-- Left 7 Cols: Glowing 5-Year Cash Flow Projection Chart -->
+        <div class="lg:col-span-7 glass-card rounded-2xl p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm font-semibold text-white tracking-tight">5-Year Cash Flow Projection Curve</h3>
+              <p class="text-[11px] text-slate-400 font-mono">Explicit FCFF Compound Trajectory vs. Present Value (PV)</p>
+            </div>
+            <div class="flex items-center gap-4 text-xs font-mono">
+              <span class="flex items-center gap-1.5 text-cyan-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block shadow-sm"></span> FCFF
+              </span>
+              <span class="flex items-center gap-1.5 text-indigo-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 inline-block shadow-sm"></span> PV (Discounted)
+              </span>
+            </div>
+          </div>
+
+          <!-- Chart.js Canvas -->
+          <div class="relative h-64 w-full">
+            <canvas id="cashFlowChart"></canvas>
+          </div>
+
+          <!-- Sum PV Metric Footer -->
+          <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-400">
+            <span>5-Yr Cumulative PV: <strong id="chartSumPV" class="text-cyan-400">$486.4M</strong></span>
+            <span>PV of Terminal Value: <strong id="chartPVTV" class="text-indigo-300">$1,505.9M</strong></span>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Interactive Sliders & Inputs -->
+        <div class="lg:col-span-5 glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between border-b border-white/5 pb-2">
+            <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              Core Valuation Inputs
+            </h3>
+            <button id="resetDefaultsBtn" class="text-[11px] text-blue-400 hover:text-blue-300 underline font-mono">Reset</button>
+          </div>
+
+          <div class="space-y-3.5 text-xs">
+            <!-- Base FCFF -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-slate-300 font-medium">Base Free Cash Flow (FCFF)</span>
+                <span id="badgeBaseFCFF" class="text-cyan-400 font-mono font-bold">$100M</span>
+              </div>
+              <input type="range" id="sliderBaseFCFF" min="5" max="500" step="5" value="100">
+            </div>
+
+            <!-- 5-Yr Growth Rate -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-slate-300 font-medium">5-Yr Growth Rate (g₁)</span>
+                <span id="badgeGrowthRate" class="text-cyan-400 font-mono font-bold">8.0%</span>
+              </div>
+              <input type="range" id="sliderGrowthRate" min="-10" max="30" step="0.5" value="8.0">
+            </div>
+
+            <!-- WACC -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-slate-300 font-medium">WACC (Discount Rate)</span>
+                <span id="badgeWACC" class="text-cyan-400 font-mono font-bold">9.0%</span>
+              </div>
+              <input type="range" id="sliderWACC" min="5.0" max="18.0" step="0.1" value="9.0">
+            </div>
+
+            <!-- Perpetual Growth -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-slate-300 font-medium">Perpetual Growth (g₂)</span>
+                <span id="badgePerpetualGrowth" class="text-cyan-400 font-mono font-bold">2.5%</span>
+              </div>
+              <input type="range" id="sliderPerpetualGrowth" min="0.5" max="5.0" step="0.1" value="2.5">
+            </div>
+          </div>
+
+          <!-- Capital Structure Expandable Inputs -->
+          <div class="pt-3 border-t border-white/5 grid grid-cols-3 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 font-mono block mb-1">Shares (M)</label>
+              <input type="number" id="inputShares" value="20" min="0.1" step="1" class="glass-input w-full px-2 py-1 rounded-lg text-xs font-mono">
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 font-mono block mb-1">Cash ($M)</label>
+              <input type="number" id="inputCash" value="50" min="0" step="10" class="glass-input w-full px-2 py-1 rounded-lg text-xs font-mono">
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 font-mono block mb-1">Debt ($M)</label>
+              <input type="number" id="inputDebt" value="200" min="0" step="10" class="glass-input w-full px-2 py-1 rounded-lg text-xs font-mono">
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- BOTTOM MODULE GRID: REVERSE DCF + DUPONT + 2D SENSITIVITY MATRIX -->
+      <section class="px-5 pt-3.5 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+        
+        <!-- Module 1: Reverse DCF Solver (4 Cols) -->
+        <div class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
+                Reverse DCF Root Solver
+              </h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-slate-400 border border-white/10">SciPy BrentQ</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Solves the market-implied 5-year growth rate for any stock price.</p>
+
+            <div class="space-y-3">
+              <div>
+                <label class="text-[11px] font-mono text-slate-400 block mb-1">Target Market Price</label>
+                <div class="flex gap-2">
+                  <input type="number" id="inputReversePrice" value="92.12" min="1" step="1" class="glass-input flex-1 px-3 py-1.5 rounded-xl text-sm font-mono font-bold text-white">
+                  <button id="btnSolveReverseDCF" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition shadow-md shadow-blue-600/30">
+                    Solve
+                  </button>
+                </div>
+              </div>
+
+              <!-- Solved Result Card -->
+              <div class="glass-card-highlight rounded-xl p-3 border border-blue-500/40">
+                <span class="text-[10px] font-mono uppercase text-blue-300 block">IMPLIED 5-YR FCFF GROWTH</span>
+                <span id="solvedImpliedGrowth" class="text-2xl font-extrabold font-mono text-cyan-400 block mt-1">+8.00%</span>
+                <span id="solvedTargetEV" class="text-[11px] text-slate-400 font-mono mt-0.5 block">Target EV: $1,992M</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-white/5 text-[11px] text-slate-500 font-mono">
+            * Inverts f(g₁) = IntrinsicPrice(g₁) - MarketPrice = 0
+          </div>
+        </div>
+
+        <!-- Module 2: 3-Stage DuPont ROE Decomposition (4 Cols) -->
+        <div class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-violet-400 inline-block"></span>
+                3-Stage DuPont Audit
+              </h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30">ROE Model</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Decomposes Return on Equity into Margin, Turnover, and Leverage.</p>
+
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5">
+                <span class="text-[10px] font-mono text-slate-400 uppercase block">NET MARGIN</span>
+                <span id="dupontMarginVal" class="text-sm font-extrabold font-mono text-white block mt-1">12.0%</span>
+                <span class="text-[9px] text-slate-500">NI / Revenue</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5">
+                <span class="text-[10px] font-mono text-slate-400 uppercase block">TURNOVER</span>
+                <span id="dupontTurnoverVal" class="text-sm font-extrabold font-mono text-white block mt-1">1.25x</span>
+                <span class="text-[9px] text-slate-500">Rev / Assets</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5">
+                <span class="text-[10px] font-mono text-slate-400 uppercase block">LEVERAGE</span>
+                <span id="dupontLeverageVal" class="text-sm font-extrabold font-mono text-white block mt-1">2.00x</span>
+                <span class="text-[9px] text-slate-500">Assets / Equity</span>
+              </div>
+            </div>
+
+            <div class="mt-3 p-3 rounded-xl bg-obsidian-900 border border-white/5 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-mono text-slate-400 uppercase block">RETURN ON EQUITY (ROE)</span>
+                <span id="dupontRoeVal" class="text-xl font-extrabold font-mono text-violet-400">30.0%</span>
+              </div>
+              <div class="text-right text-[10px] font-mono text-slate-400">
+                <span>Margin &times; Turnover &times; Lev</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-white/5 text-[11px] text-slate-500 font-mono">
+            * Exact Path Delta Attribution Enabled
+          </div>
+        </div>
+
+        <!-- Module 3: 2D Sensitivity Matrix (4 Cols) -->
+        <div class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+                2D Margin-of-Safety Matrix
+              </h3>
+              <span class="text-[10px] font-mono text-slate-400">WACC vs. LTG</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-2">Share prices across discount and perpetual growth rates.</p>
+
+            <!-- Sensitivity Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-center border-collapse font-mono text-[11px]">
+                <thead>
+                  <tr class="text-slate-400 text-[10px]">
+                    <th class="py-1 px-1 bg-obsidian-900 rounded">W\G</th>
+                    <th class="py-1 px-1 text-slate-300">1.5%</th>
+                    <th class="py-1 px-1 text-slate-300">2.0%</th>
+                    <th class="py-1 px-1 text-slate-300">2.5%</th>
+                    <th class="py-1 px-1 text-slate-300">3.0%</th>
+                    <th class="py-1 px-1 text-slate-300">3.5%</th>
+                  </tr>
+                </thead>
+                <tbody id="matrixTableBody" class="divide-y divide-white/5">
+                  <!-- Dynamically populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-slate-500">
+            <span>Dark: Lower Valuation</span>
+            <span class="text-cyan-400">Cyan: Higher Valuation</span>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- APPLICATION JAVASCRIPT LOGIC -->
+  <script>
+    // State Store
+    const state = {
+      ticker: "BASELINE",
+      companyName: "Global Benchmark Baseline",
+      currency: "USD",
+      currencySymbol: "$",
+      marketPrice: 92.12,
+      baseFCFF: 100.0,
+      growthRate: 8.0,
+      wacc: 9.0,
+      perpetualGrowth: 2.5,
+      shares: 20.0,
+      cash: 50.0,
+      debt: 200.0,
+      netIncome: 120.0,
+      revenue: 1000.0,
+      totalAssets: 800.0,
+      totalEquity: 400.0
+    };
+
+    // DOM Elements
+    const sliderBaseFCFF = document.getElementById('sliderBaseFCFF');
+    const sliderGrowthRate = document.getElementById('sliderGrowthRate');
+    const sliderWACC = document.getElementById('sliderWACC');
+    const sliderPerpetualGrowth = document.getElementById('sliderPerpetualGrowth');
+
+    const badgeBaseFCFF = document.getElementById('badgeBaseFCFF');
+    const badgeGrowthRate = document.getElementById('badgeGrowthRate');
+    const badgeWACC = document.getElementById('badgeWACC');
+    const badgePerpetualGrowth = document.getElementById('badgePerpetualGrowth');
+
+    const inputShares = document.getElementById('inputShares');
+    const inputCash = document.getElementById('inputCash');
+    const inputDebt = document.getElementById('inputDebt');
+
+    const kpiIntrinsicValue = document.getElementById('kpiIntrinsicValue');
+    const kpiEnterpriseValue = document.getElementById('kpiEnterpriseValue');
+    const kpiEquityValue = document.getElementById('kpiEquityValue');
+    const kpiNetDebt = document.getElementById('kpiNetDebt');
+    const kpiTerminalValPct = document.getElementById('kpiTerminalValPct');
+    const kpiValuationDiff = document.getElementById('kpiValuationDiff');
+    const kpiCashDisplay = document.getElementById('kpiCashDisplay');
+    const kpiDebtDisplay = document.getElementById('kpiDebtDisplay');
+
+    const companyNameText = document.getElementById('companyNameText');
+    const tickerSymbolBadge = document.getElementById('tickerSymbolBadge');
+    const exchangeBadge = document.getElementById('exchangeBadge');
+    const currencyDisplay = document.getElementById('currencyDisplay');
+    const marketPriceDisplay = document.getElementById('marketPriceDisplay');
+    const sharesSummaryDisplay = document.getElementById('sharesSummaryDisplay');
+    const companyLogoInitials = document.getElementById('companyLogoInitials');
+    const dislocationPill = document.getElementById('dislocationPill');
+    const dislocationText = document.getElementById('dislocationText');
+
+    const chartSumPV = document.getElementById('chartSumPV');
+    const chartPVTV = document.getElementById('chartPVTV');
+
+    const inputReversePrice = document.getElementById('inputReversePrice');
+    const btnSolveReverseDCF = document.getElementById('btnSolveReverseDCF');
+    const solvedImpliedGrowth = document.getElementById('solvedImpliedGrowth');
+    const solvedTargetEV = document.getElementById('solvedTargetEV');
+
+    const dupontMarginVal = document.getElementById('dupontMarginVal');
+    const dupontTurnoverVal = document.getElementById('dupontTurnoverVal');
+    const dupontLeverageVal = document.getElementById('dupontLeverageVal');
+    const dupontRoeVal = document.getElementById('dupontRoeVal');
+
+    const matrixTableBody = document.getElementById('matrixTableBody');
+
+    const tickerSearchInput = document.getElementById('tickerSearchInput');
+    const searchDropdown = document.getElementById('searchDropdown');
+    const searchSpinner = document.getElementById('searchSpinner');
+
+    // Chart.js instance
+    let cashFlowChartInstance = null;
+
+    // Currency Formatter
+    const fmt = (n, dec = 0) => {
+      const sym = state.currencySymbol || "$";
+      if (!isFinite(n)) return 'N/A';
+      return sym + n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    };
+
+    // Initialize Chart.js
+    function initChart() {
+      const ctx = document.getElementById('cashFlowChart').getContext('2d');
+
+      const gradientFCFF = ctx.createLinearGradient(0, 0, 0, 240);
+      gradientFCFF.addColorStop(0, 'rgba(56, 189, 248, 0.4)');
+      gradientFCFF.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
+      const gradientPV = ctx.createLinearGradient(0, 0, 0, 240);
+      gradientPV.addColorStop(0, 'rgba(129, 140, 248, 0.4)');
+      gradientPV.addColorStop(1, 'rgba(129, 140, 248, 0.0)');
+
+      cashFlowChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+          datasets: [
+            {
+              label: 'Projected FCFF',
+              data: [108.0, 116.64, 125.97, 136.05, 146.93],
+              borderColor: '#38bdf8',
+              backgroundColor: gradientFCFF,
+              fill: true,
+              borderWidth: 2.5,
+              tension: 0.35,
+              pointBackgroundColor: '#38bdf8',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            },
+            {
+              label: 'Present Value (PV)',
+              data: [99.08, 98.17, 97.27, 96.38, 95.50],
+              borderColor: '#818cf8',
+              backgroundColor: gradientPV,
+              fill: true,
+              borderWidth: 2.5,
+              tension: 0.35,
+              pointBackgroundColor: '#818cf8',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#090d16',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1,
+              titleFont: { family: 'JetBrains Mono', size: 12 },
+              bodyFont: { family: 'JetBrains Mono', size: 12 },
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.dataset.label}: ${fmt(context.parsed.y, 1)}M`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#64748b',
+                font: { family: 'JetBrains Mono', size: 10 },
+                callback: function(value) { return fmt(value, 0) + 'M'; }
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Inter', size: 11, weight: '600' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Call Backend API: POST /api/v1/valuation/dcf
+    async function evaluateDCF() {
+      // Guardrail: WACC must be > Perpetual Growth
+      if (state.perpetualGrowth >= state.wacc) {
+        state.perpetualGrowth = Number((state.wacc - 0.5).toFixed(1));
+        sliderPerpetualGrowth.value = state.perpetualGrowth;
+      }
+
+      // Update Slider Badges
+      badgeBaseFCFF.textContent = fmt(state.baseFCFF, 0) + 'M';
+      badgeGrowthRate.textContent = state.growthRate.toFixed(1) + '%';
+      badgeWACC.textContent = state.wacc.toFixed(1) + '%';
+      badgePerpetualGrowth.textContent = state.perpetualGrowth.toFixed(1) + '%';
+
+      const payload = {
+        base_fcff: state.baseFCFF,
+        growth_rate_5yr: state.growthRate / 100.0,
+        wacc: state.wacc / 100.0,
+        perpetual_growth: state.perpetualGrowth / 100.0,
+        shares: state.shares,
+        cash: state.cash,
+        debt: state.debt
+      };
+
+      try {
+        const response = await fetch('/api/v1/valuation/dcf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error('DCF API Error');
+        const data = await response.json();
+
+        // Update Top Metric Ribbon
+        kpiIntrinsicValue.textContent = fmt(data.intrinsic_value_per_share, 2);
+        kpiEnterpriseValue.textContent = fmt(data.enterprise_value, 0) + 'M';
+        kpiEquityValue.textContent = fmt(data.equity_value, 0) + 'M';
+        kpiNetDebt.textContent = fmt(data.net_debt, 0) + 'M';
+        kpiTerminalValPct.textContent = Math.round(data.terminal_value_pct) + '%';
+        kpiCashDisplay.textContent = fmt(state.cash, 0) + 'M';
+        kpiDebtDisplay.textContent = fmt(state.debt, 0) + 'M';
+
+        // Valuation Dislocation / Margin of Safety calculation
+        const intrinsic = data.intrinsic_value_per_share;
+        const market = state.marketPrice;
+        if (market > 0) {
+          const diffPct = ((intrinsic - market) / market) * 100.0;
+          if (diffPct > 2.0) {
+            dislocationPill.className = "px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-semibold flex items-center gap-2 shadow-sm";
+            dislocationText.textContent = `+${diffPct.toFixed(1)}% Undervalued`;
+            kpiValuationDiff.textContent = `+${diffPct.toFixed(1)}% vs market`;
+          } else if (diffPct < -2.0) {
+            dislocationPill.className = "px-3.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-xs font-semibold flex items-center gap-2 shadow-sm";
+            dislocationText.textContent = `${diffPct.toFixed(1)}% Overvalued`;
+            kpiValuationDiff.textContent = `${diffPct.toFixed(1)}% vs market`;
+          } else {
+            dislocationPill.className = "px-3.5 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-mono text-xs font-semibold flex items-center gap-2 shadow-sm";
+            dislocationText.textContent = "Fair Value (Parity)";
+            kpiValuationDiff.textContent = "0.0% diff";
+          }
+        }
+
+        // Update Chart Data
+        if (cashFlowChartInstance && data.projections) {
+          cashFlowChartInstance.data.datasets[0].data = data.projections.map(p => p.fcff);
+          cashFlowChartInstance.data.datasets[1].data = data.projections.map(p => p.present_value);
+          cashFlowChartInstance.update();
+        }
+
+        chartSumPV.textContent = fmt(data.sum_pv_fcff, 1) + 'M';
+        chartPVTV.textContent = fmt(data.pv_terminal_value, 1) + 'M';
+
+      } catch (err) {
+        console.error('Failed to compute DCF:', err);
+      }
+    }
+
+    // Call Backend API: POST /api/v1/valuation/sensitivity
+    async function evaluateSensitivity() {
+      const payload = {
+        base_fcff: state.baseFCFF,
+        growth_rate_5yr: state.growthRate / 100.0,
+        wacc: state.wacc / 100.0,
+        perpetual_growth: state.perpetualGrowth / 100.0,
+        shares: state.shares,
+        cash: state.cash,
+        debt: state.debt
+      };
+
+      try {
+        const response = await fetch('/api/v1/valuation/sensitivity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) return;
+        const data = await response.json();
+
+        const waccRows = data.wacc_range;
+        const ltgCols = data.ltg_range;
+        const matrix = data.matrix;
+
+        // Flatten values for color intensity
+        const flatVals = matrix.flat().filter(v => v !== null);
+        const minVal = Math.min(...flatVals);
+        const maxVal = Math.max(...flatVals);
+
+        let html = '';
+        matrix.forEach((row, rIdx) => {
+          const currentW = waccRows[rIdx];
+          html += `<tr>`;
+          html += `<td class="py-1 px-1 font-bold text-slate-400 bg-obsidian-900 rounded">${(currentW * 100).toFixed(1)}%</td>`;
+
+          row.forEach((val, cIdx) => {
+            const currentG = ltgCols[cIdx];
+            const isActive = Math.abs(currentW - state.wacc / 100.0) < 0.0001 && Math.abs(currentG - state.perpetualGrowth / 100.0) < 0.0001;
+
+            if (val === null) {
+              html += `<td class="p-0.5 text-slate-600">N/A</td>`;
+            } else {
+              const norm = (val - minVal) / (maxVal - minVal || 1);
+              const opacity = 0.15 + norm * 0.75;
+              const bg = `rgba(56, 189, 248, ${opacity.toFixed(2)})`;
+              const border = isActive 
+                ? 'border-2 border-cyan-400 shadow-lg shadow-cyan-500/50 text-white font-extrabold scale-[1.06]' 
+                : 'text-slate-200 hover:brightness-125';
+
+              html += `
+                <td class="p-0.5">
+                  <button 
+                    class="w-full py-1 px-0.5 rounded text-[10px] font-mono transition-all ${border}" 
+                    style="background-color: ${bg};"
+                    onclick="applySensitivity(${currentW * 100}, ${currentG * 100})">
+                    ${fmt(val, 1)}
+                  </button>
+                </td>
+              `;
+            }
+          });
+          html += `</tr>`;
+        });
+
+        matrixTableBody.innerHTML = html;
+
+      } catch (err) {
+        console.error('Failed to compute sensitivity:', err);
+      }
+    }
+
+    // Apply sensitivity cell click
+    window.applySensitivity = function(newWacc, newLtg) {
+      state.wacc = newWacc;
+      state.perpetualGrowth = newLtg;
+      sliderWACC.value = newWacc;
+      sliderPerpetualGrowth.value = newLtg;
+      evaluateDCF();
+      evaluateSensitivity();
+    };
+
+    // Call Backend API: POST /api/v1/valuation/reverse-dcf
+    async function solveReverseDCF() {
+      const targetPrice = parseFloat(inputReversePrice.value) || state.marketPrice;
+      const payload = {
+        target_price: targetPrice,
+        base_fcff: state.baseFCFF,
+        wacc: state.wacc / 100.0,
+        perpetual_growth: state.perpetualGrowth / 100.0,
+        shares: state.shares,
+        cash: state.cash,
+        debt: state.debt
+      };
+
+      try {
+        const response = await fetch('/api/v1/valuation/reverse-dcf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          alert('Reverse DCF Error: ' + err.detail);
+          return;
+        }
+
+        const data = await response.json();
+        const sign = data.implied_growth_rate >= 0 ? '+' : '';
+        solvedImpliedGrowth.textContent = `${sign}${data.implied_growth_rate_pct.toFixed(2)}%`;
+        solvedTargetEV.textContent = `Target EV: ${fmt(data.target_enterprise_value, 0)}M (${data.solver_method})`;
+
+      } catch (err) {
+        console.error('Failed to solve reverse DCF:', err);
+      }
+    }
+
+    // Call Backend API: POST /api/v1/analysis/dupont
+    async function evaluateDuPont() {
+      const payload = {
+        current: {
+          net_income: state.netIncome,
+          revenue: state.revenue,
+          total_assets: state.totalAssets,
+          shareholders_equity: state.totalEquity
+        }
+      };
+
+      try {
+        const response = await fetch('/api/v1/analysis/dupont', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) return;
+        const data = await response.json();
+
+        dupontMarginVal.textContent = (data.net_profit_margin * 100).toFixed(1) + '%';
+        dupontTurnoverVal.textContent = data.asset_turnover.toFixed(2) + 'x';
+        dupontLeverageVal.textContent = data.equity_multiplier.toFixed(2) + 'x';
+        dupontRoeVal.textContent = (data.roe * 100).toFixed(1) + '%';
+
+      } catch (err) {
+        console.error('Failed to evaluate DuPont:', err);
+      }
+    }
+
+    // Autocomplete Search Debounce
+    let searchTimeout = null;
+    tickerSearchInput.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      clearTimeout(searchTimeout);
+
+      if (!q) {
+        searchDropdown.classList.add('hidden');
+        searchSpinner.classList.add('hidden');
+        return;
+      }
+
+      searchSpinner.classList.remove('hidden');
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/v1/search/ticker?q=${encodeURIComponent(q)}`);
+          searchSpinner.classList.add('hidden');
+          if (!res.ok) return;
+          const data = await res.json();
+          renderSearchResults(data.results || []);
+        } catch (err) {
+          searchSpinner.classList.add('hidden');
+        }
+      }, 250);
+    });
+
+    function renderSearchResults(results) {
+      if (results.length === 0) {
+        searchDropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 font-mono text-center">No company matches found</div>`;
+        searchDropdown.classList.remove('hidden');
+        return;
+      }
+
+      let html = '';
+      results.forEach(item => {
+        html += `
+          <div class="search-item p-2.5 hover:bg-blue-600/20 cursor-pointer transition flex items-center justify-between" onclick="loadTicker('${item.symbol}')">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 rounded bg-blue-500/20 text-cyan-400 font-mono text-xs font-bold border border-blue-500/30">${item.symbol}</span>
+              <div class="truncate max-w-[200px]">
+                <span class="text-xs font-semibold text-white block truncate">${item.name}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${item.sector}</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono text-slate-400 px-1.5 py-0.5 rounded bg-white/5 border border-white/5">${item.exchange}</span>
+          </div>
+        `;
+      });
+
+      searchDropdown.innerHTML = html;
+      searchDropdown.classList.remove('hidden');
+    }
+
+    // Load selected ticker from backend
+    window.loadTicker = async function(symbol) {
+      searchDropdown.classList.add('hidden');
+      tickerSearchInput.value = symbol;
+      searchSpinner.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`/api/v1/ticker/${encodeURIComponent(symbol)}`);
+        searchSpinner.classList.add('hidden');
+        if (!res.ok) {
+          alert(`Could not fetch data for ticker: ${symbol}`);
+          return;
+        }
+
+        const data = await res.json();
+        
+        // Update State
+        state.ticker = data.symbol;
+        state.companyName = data.company_name;
+        state.currency = data.currency;
+        state.currencySymbol = data.currency_symbol || '$';
+        state.marketPrice = data.price;
+        state.shares = data.diluted_shares;
+        state.cash = data.cash;
+        state.debt = data.debt;
+        if (data.base_fcff && data.base_fcff > 0) {
+          state.baseFCFF = data.base_fcff;
+        }
+        if (data.revenue) state.revenue = data.revenue;
+        if (data.net_income) state.netIncome = data.net_income;
+        if (data.total_assets) state.totalAssets = data.total_assets;
+        if (data.total_equity) state.totalEquity = data.total_equity;
+
+        // Update UI Banner
+        companyNameText.textContent = data.company_name;
+        tickerSymbolBadge.textContent = data.symbol;
+        currencyDisplay.textContent = `${data.currency} (${data.currency_symbol})`;
+        marketPriceDisplay.textContent = fmt(data.price, 2);
+        sharesSummaryDisplay.textContent = `${data.diluted_shares.toFixed(1)}M`;
+        companyLogoInitials.textContent = data.symbol.slice(0, 2);
+        exchangeBadge.textContent = "LIVE";
+
+        // Update Inputs
+        inputShares.value = data.diluted_shares;
+        inputCash.value = data.cash;
+        inputDebt.value = data.debt;
+        inputReversePrice.value = data.price.toFixed(2);
+        sliderBaseFCFF.value = state.baseFCFF;
+
+        // Re-evaluate
+        evaluateDCF();
+        evaluateSensitivity();
+        solveReverseDCF();
+        evaluateDuPont();
+
+      } catch (err) {
+        searchSpinner.classList.add('hidden');
+        console.error('Error loading ticker:', err);
+      }
+    };
+
+    // Close search dropdown on click outside
+    document.addEventListener('click', (e) => {
+      if (!tickerSearchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+        searchDropdown.classList.add('hidden');
+      }
+    });
+
+    // Slider Event Listeners
+    sliderBaseFCFF.addEventListener('input', (e) => {
+      state.baseFCFF = parseFloat(e.target.value);
+      evaluateDCF();
+      evaluateSensitivity();
+    });
+
+    sliderGrowthRate.addEventListener('input', (e) => {
+      state.growthRate = parseFloat(e.target.value);
+      evaluateDCF();
+      evaluateSensitivity();
+    });
+
+    sliderWACC.addEventListener('input', (e) => {
+      state.wacc = parseFloat(e.target.value);
+      evaluateDCF();
+      evaluateSensitivity();
+    });
+
+    sliderPerpetualGrowth.addEventListener('input', (e) => {
+      state.perpetualGrowth = parseFloat(e.target.value);
+      evaluateDCF();
+      evaluateSensitivity();
+    });
+
+    // Capital Structure Inputs
+    inputShares.addEventListener('input', (e) => {
+      state.shares = Math.max(0.01, parseFloat(e.target.value) || 1);
+      evaluateDCF();
+      evaluateSensitivity();
+    });
+
+    inputCash.addEventListener('input', (e) => {
+      state.cash = parseFloat(e.target.value) || 0;
+      evaluateDCF();
+      evaluateSensitivity();
+    });
+
+    inputDebt.addEventListener('input', (e) => {
+      state.debt = parseFloat(e.target.value) || 0;
+      evaluateDCF();
+      evaluateSensitivity();
+    });
+
+    // Reverse DCF Solve Button
+    btnSolveReverseDCF.addEventListener('click', solveReverseDCF);
+
+    // Preset Buttons
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = btn.getAttribute('data-ticker');
+        if (t === 'BASELINE') {
+          state.ticker = "BASELINE";
+          state.companyName = "Global Benchmark Baseline";
+          state.currency = "USD";
+          state.currencySymbol = "$";
+          state.marketPrice = 92.12;
+          state.baseFCFF = 100.0;
+          state.growthRate = 8.0;
+          state.wacc = 9.0;
+          state.perpetualGrowth = 2.5;
+          state.shares = 20.0;
+          state.cash = 50.0;
+          state.debt = 200.0;
+
+          companyNameText.textContent = state.companyName;
+          tickerSymbolBadge.textContent = state.ticker;
+          currencyDisplay.textContent = "USD ($)";
+          marketPriceDisplay.textContent = "$92.12";
+          sharesSummaryDisplay.textContent = "20.0M";
+          companyLogoInitials.textContent = "QK";
+          exchangeBadge.textContent = "PRO-MODEL";
+
+          sliderBaseFCFF.value = 100;
+          sliderGrowthRate.value = 8.0;
+          sliderWACC.value = 9.0;
+          sliderPerpetualGrowth.value = 2.5;
+          inputShares.value = 20;
+          inputCash.value = 50;
+          inputDebt.value = 200;
+          inputReversePrice.value = 92.12;
+
+          evaluateDCF();
+          evaluateSensitivity();
+          solveReverseDCF();
+          evaluateDuPont();
+        } else {
+          loadTicker(t);
+        }
+      });
+    });
+
+    // Reset Defaults Button
+    document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
+      document.querySelector('[data-ticker="BASELINE"]').click();
+    });
+
+    // Initial Execution on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      evaluateDCF();
+      evaluateSensitivity();
+      solveReverseDCF();
+      evaluateDuPont();
+    });
+  </script>
+</body>
+</html>
