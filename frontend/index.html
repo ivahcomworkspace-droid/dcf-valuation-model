@@ -169,35 +169,35 @@
 
         <!-- Navigation Links -->
         <nav class="p-3 space-y-1">
-          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600/20 border border-blue-500/30 transition-all shadow-sm" data-tab="dashboard">
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600/20 border border-blue-500/30 transition-all shadow-sm" data-tab="dashboard" data-target="section-dashboard">
             <svg class="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
             </svg>
             <span class="hidden md:inline">Dashboard</span>
           </button>
 
-          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="dcf-engine">
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 border border-transparent transition-all" data-tab="dcf-engine" data-target="section-dcf">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
             <span class="hidden md:inline">DCF Engine</span>
           </button>
 
-          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="reverse-dcf">
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 border border-transparent transition-all" data-tab="reverse-dcf" data-target="section-reversedcf">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span class="hidden md:inline">Reverse DCF</span>
           </button>
 
-          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="dupont-audit">
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 border border-transparent transition-all" data-tab="dupont-audit" data-target="section-dupont">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
             </svg>
             <span class="hidden md:inline">DuPont Audit</span>
           </button>
 
-          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-tab="sensitivity-grid">
+          <button class="nav-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 border border-transparent transition-all" data-tab="sensitivity-grid" data-target="section-heatmap">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
@@ -274,102 +274,105 @@
         </div>
       </header>
 
-      <!-- ACTIVE TICKER / BRANDING BANNER -->
-      <section class="px-5 pt-4">
-        <div class="glass-card rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-center gap-3.5">
-            <!-- Company Logo / Tile -->
-            <div id="companyLogoTile" class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-800 p-0.5 shadow-md shadow-blue-900/30 shrink-0 flex items-center justify-center font-extrabold text-white font-mono text-base">
-              <span id="companyLogoInitials">QK</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h2 id="companyNameText" class="text-base sm:text-lg font-bold text-white tracking-tight">Global Benchmark Baseline</h2>
-                <span id="tickerSymbolBadge" class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-400 font-mono text-xs font-bold border border-blue-500/30">BASELINE</span>
-                <span id="exchangeBadge" class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/5 text-slate-400 font-mono text-[10px] border border-white/10">PRO-MODEL</span>
+      <!-- TOP KPI RIBBON & HERO AREA -->
+      <div id="section-dashboard" class="scroll-mt-20">
+        <!-- ACTIVE TICKER / BRANDING BANNER -->
+        <section class="px-5 pt-4">
+          <div class="glass-card rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+              <!-- Company Logo / Tile -->
+              <div id="companyLogoTile" class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-800 p-0.5 shadow-md shadow-blue-900/30 shrink-0 flex items-center justify-center font-extrabold text-white font-mono text-base">
+                <span id="companyLogoInitials">QK</span>
               </div>
-              <p class="text-xs text-slate-400 font-mono flex items-center gap-2 mt-0.5">
-                <span>Currency: <strong id="currencyDisplay" class="text-slate-200">USD ($)</strong></span>
-                <span>•</span>
-                <span>Market Price: <strong id="marketPriceDisplay" class="text-cyan-400">$92.12</strong></span>
-                <span>•</span>
-                <span>Diluted Shares: <strong id="sharesSummaryDisplay" class="text-slate-200">20.0M</strong></span>
-              </p>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 id="companyNameText" class="text-base sm:text-lg font-bold text-white tracking-tight">Global Benchmark Baseline</h2>
+                  <span id="tickerSymbolBadge" class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-400 font-mono text-xs font-bold border border-blue-500/30">BASELINE</span>
+                  <span id="exchangeBadge" class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/5 text-slate-400 font-mono text-[10px] border border-white/10">PRO-MODEL</span>
+                </div>
+                <p class="text-xs text-slate-400 font-mono flex items-center gap-2 mt-0.5">
+                  <span>Currency: <strong id="currencyDisplay" class="text-slate-200">USD ($)</strong></span>
+                  <span>•</span>
+                  <span>Market Price: <strong id="marketPriceDisplay" class="text-cyan-400">$92.12</strong></span>
+                  <span>•</span>
+                  <span>Diluted Shares: <strong id="sharesSummaryDisplay" class="text-slate-200">20.0M</strong></span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Margin of Safety / Dislocation Badge -->
+            <div class="flex items-center gap-3">
+              <div id="dislocationPill" class="px-3.5 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-mono text-xs font-semibold flex items-center gap-2 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+                <span id="dislocationText">Fair Value (Parity)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TOP METRIC RIBBON (4 KPI Cards) -->
+        <section class="px-5 pt-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          
+          <!-- Card 1: Intrinsic Value -->
+          <div class="glass-card-highlight rounded-2xl p-4 relative overflow-hidden">
+            <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-300">
+              <span>INTRINSIC VALUE</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/30 text-cyan-300">PER SHARE</span>
+            </div>
+            <div class="mt-2 text-3xl font-extrabold font-mono text-cyan-400 tracking-tight" id="kpiIntrinsicValue">
+              $92.12
+            </div>
+            <div class="mt-1 text-xs text-slate-400 flex justify-between items-center">
+              <span>Derived Share Price</span>
+              <span class="text-slate-300 font-mono" id="kpiValuationDiff">0.0% diff</span>
             </div>
           </div>
 
-          <!-- Margin of Safety / Dislocation Badge -->
-          <div class="flex items-center gap-3">
-            <div id="dislocationPill" class="px-3.5 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-mono text-xs font-semibold flex items-center gap-2 shadow-sm">
-              <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
-              <span id="dislocationText">Fair Value (Parity)</span>
+          <!-- Card 2: Enterprise Value -->
+          <div class="glass-card rounded-2xl p-4">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              ENTERPRISE VALUE (EV)
+            </div>
+            <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEnterpriseValue">
+              $1,992M
+            </div>
+            <div class="mt-1 text-xs text-slate-400">
+              <span id="kpiTerminalValPct" class="text-blue-400 font-semibold font-mono">75.6%</span> Terminal Value
             </div>
           </div>
-        </div>
-      </section>
 
-      <!-- TOP METRIC RIBBON (4 KPI Cards) -->
-      <section class="px-5 pt-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        
-        <!-- Card 1: Intrinsic Value -->
-        <div class="glass-card-highlight rounded-2xl p-4 relative overflow-hidden">
-          <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-300">
-            <span>INTRINSIC VALUE</span>
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/30 text-cyan-300">PER SHARE</span>
+          <!-- Card 3: Equity Value -->
+          <div class="glass-card rounded-2xl p-4">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              EQUITY VALUE
+            </div>
+            <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEquityValue">
+              $1,842M
+            </div>
+            <div class="mt-1 text-xs text-slate-400 font-mono">
+              EV + Cash - Debt
+            </div>
           </div>
-          <div class="mt-2 text-3xl font-extrabold font-mono text-cyan-400 tracking-tight" id="kpiIntrinsicValue">
-            $92.12
-          </div>
-          <div class="mt-1 text-xs text-slate-400 flex justify-between items-center">
-            <span>Derived Share Price</span>
-            <span class="text-slate-300 font-mono" id="kpiValuationDiff">0.0% diff</span>
-          </div>
-        </div>
 
-        <!-- Card 2: Enterprise Value -->
-        <div class="glass-card rounded-2xl p-4">
-          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            ENTERPRISE VALUE (EV)
+          <!-- Card 4: Net Debt & Capital Structure -->
+          <div class="glass-card rounded-2xl p-4">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              NET DEBT (DEBT - CASH)
+            </div>
+            <div class="mt-2 text-3xl font-extrabold font-mono text-slate-200 tracking-tight" id="kpiNetDebt">
+              $150M
+            </div>
+            <div class="mt-1 text-xs text-slate-400 font-mono flex justify-between">
+              <span>Cash: <b id="kpiCashDisplay" class="text-slate-300">$50M</b></span>
+              <span>Debt: <b id="kpiDebtDisplay" class="text-slate-300">$200M</b></span>
+            </div>
           </div>
-          <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEnterpriseValue">
-            $1,992M
-          </div>
-          <div class="mt-1 text-xs text-slate-400">
-            <span id="kpiTerminalValPct" class="text-blue-400 font-semibold font-mono">75.6%</span> Terminal Value
-          </div>
-        </div>
 
-        <!-- Card 3: Equity Value -->
-        <div class="glass-card rounded-2xl p-4">
-          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            EQUITY VALUE
-          </div>
-          <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEquityValue">
-            $1,842M
-          </div>
-          <div class="mt-1 text-xs text-slate-400 font-mono">
-            EV + Cash - Debt
-          </div>
-        </div>
-
-        <!-- Card 4: Net Debt & Capital Structure -->
-        <div class="glass-card rounded-2xl p-4">
-          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            NET DEBT (DEBT - CASH)
-          </div>
-          <div class="mt-2 text-3xl font-extrabold font-mono text-slate-200 tracking-tight" id="kpiNetDebt">
-            $150M
-          </div>
-          <div class="mt-1 text-xs text-slate-400 font-mono flex justify-between">
-            <span>Cash: <b id="kpiCashDisplay" class="text-slate-300">$50M</b></span>
-            <span>Debt: <b id="kpiDebtDisplay" class="text-slate-300">$200M</b></span>
-          </div>
-        </div>
-
-      </section>
+        </section>
+      </div>
 
       <!-- MAIN CENTER PANEL: CHART + REALTIME PARAMETER SLIDERS -->
-      <section class="px-5 pt-3.5 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+      <section id="section-dcf" class="px-5 pt-3.5 grid grid-cols-1 lg:grid-cols-12 gap-3.5 scroll-mt-20">
         
         <!-- Left 7 Cols: Glowing 5-Year Cash Flow Projection Chart -->
         <div class="lg:col-span-7 glass-card rounded-2xl p-5 flex flex-col justify-between">
@@ -473,7 +476,7 @@
       <section class="px-5 pt-3.5 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
         
         <!-- Module 1: Reverse DCF Solver (4 Cols) -->
-        <div class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between">
+        <div id="section-reversedcf" class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between scroll-mt-20">
           <div>
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
@@ -510,7 +513,7 @@
         </div>
 
         <!-- Module 2: 3-Stage DuPont ROE Decomposition (4 Cols) -->
-        <div class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between">
+        <div id="section-dupont" class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between scroll-mt-20">
           <div>
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
@@ -556,7 +559,7 @@
         </div>
 
         <!-- Module 3: 2D Sensitivity Matrix (4 Cols) -->
-        <div class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between">
+        <div id="section-heatmap" class="lg:col-span-4 glass-card rounded-2xl p-5 flex flex-col justify-between scroll-mt-20">
           <div>
             <div class="flex items-center justify-between mb-2">
               <h3 class="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
@@ -1207,6 +1210,56 @@
       });
     });
 
+    // Sidebar Navigation Tabs & Smooth Scrolling
+    const navTabs = document.querySelectorAll('.nav-tab');
+
+    function setActiveNavTab(activeBtn) {
+      navTabs.forEach(tab => {
+        tab.classList.remove(
+          'bg-blue-600/20',
+          'border-blue-500/30',
+          'text-white',
+          'shadow-sm',
+          'shadow-blue-500/20'
+        );
+        tab.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-white/5', 'border-transparent');
+        
+        const icon = tab.querySelector('svg');
+        if (icon) {
+          icon.classList.remove('text-cyan-400');
+        }
+      });
+
+      activeBtn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-white/5', 'border-transparent');
+      activeBtn.classList.add(
+        'bg-blue-600/20',
+        'border-blue-500/30',
+        'text-white',
+        'shadow-sm',
+        'shadow-blue-500/20'
+      );
+      
+      const activeIcon = activeBtn.querySelector('svg');
+      if (activeIcon) {
+        activeIcon.classList.add('text-cyan-400');
+      }
+    }
+
+    navTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        setActiveNavTab(tab);
+
+        const targetId = tab.getAttribute('data-target');
+        if (targetId) {
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+
     // Reset Defaults Button
     document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
       document.querySelector('[data-ticker="BASELINE"]').click();
@@ -1214,6 +1267,10 @@
 
     // Initial Execution on Load
     window.addEventListener('DOMContentLoaded', () => {
+      const defaultTab = document.querySelector('.nav-tab[data-target="section-dashboard"]');
+      if (defaultTab) {
+        setActiveNavTab(defaultTab);
+      }
       initChart();
       evaluateDCF();
       evaluateSensitivity();
