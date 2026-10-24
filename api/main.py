@@ -250,6 +250,20 @@ async def search_ticker(q: str = Query(default="", description="Search query str
         return TickerSearchResponse(query=clean_query, results=[])
 
 
+CURRENCY_MAP: Dict[str, Dict[str, str]] = {
+    "USD": {"symbol": "$", "name": "US Dollar"},
+    "INR": {"symbol": "₹", "name": "Indian Rupee"},
+    "EUR": {"symbol": "€", "name": "Euro"},
+    "GBP": {"symbol": "£", "name": "British Pound"},
+    "JPY": {"symbol": "¥", "name": "Japanese Yen"},
+    "CAD": {"symbol": "C$", "name": "Canadian Dollar"},
+    "AUD": {"symbol": "A$", "name": "Australian Dollar"},
+    "CHF": {"symbol": "CHF", "name": "Swiss Franc"},
+    "HKD": {"symbol": "HK$", "name": "Hong Kong Dollar"},
+    "CNY": {"symbol": "¥", "name": "Chinese Yuan"}
+}
+
+
 @app.get("/api/v1/ticker/{symbol}", tags=["Market Data"])
 async def get_ticker_data(symbol: str):
     """
@@ -266,14 +280,40 @@ async def get_ticker_data(symbol: str):
         base_fcff = bundle.infer_base_fcff()
 
         domain = ""
+        raw_currency = (snap.currency or "USD").upper()
+        exchange_name = "GLOBAL"
+
         try:
             import yfinance as yf
             t = yf.Ticker(sym)
             website = t.info.get("website", "")
             if website:
                 domain = website.replace("https://", "").replace("http://", "").split("/")[0]
+
+            fast_info = getattr(t, "fast_info", None)
+            fast_curr = getattr(fast_info, "currency", None) if fast_info else None
+            t_info = t.info or {}
+            yf_curr = t_info.get("currency") or fast_curr
+            if yf_curr:
+                raw_currency = str(yf_curr).upper()
+            exchange_name = t_info.get("exchange") or t_info.get("fullExchangeName") or "GLOBAL"
         except Exception:
             pass
+
+        # Fallback logic
+        if sym.endswith((".NS", ".BO")):
+            raw_currency = "INR"
+        elif sym.endswith(".L"):
+            raw_currency = "GBP"
+        elif sym.endswith(".T"):
+            raw_currency = "JPY"
+
+        if raw_currency in CURRENCY_MAP:
+            symbol_out = CURRENCY_MAP[raw_currency]["symbol"]
+            name_out = CURRENCY_MAP[raw_currency]["name"]
+        else:
+            symbol_out = raw_currency + " "
+            name_out = raw_currency
 
         # Calculate dynamic CAPM WACC using pure fin_engine
         wacc_info = calculate_dynamic_wacc(
@@ -281,7 +321,7 @@ async def get_ticker_data(symbol: str):
             shares=snap.diluted_shares,
             debt=snap.total_debt,
             beta=snap.beta or 1.0,
-            currency=snap.currency,
+            currency=raw_currency,
             tax_rate=fin.effective_tax_rate if fin else None,
             interest_expense=snap.interest_expense,
         )
@@ -290,8 +330,10 @@ async def get_ticker_data(symbol: str):
             "symbol": snap.ticker,
             "company_name": snap.company_name or snap.ticker,
             "price": snap.current_price,
-            "currency": snap.currency,
-            "currency_symbol": snap.currency_symbol,
+            "currency": raw_currency,
+            "currency_symbol": symbol_out,
+            "currency_name": name_out,
+            "exchange": exchange_name,
             "diluted_shares": snap.diluted_shares,
             "cash": snap.cash_and_equivalents,
             "debt": snap.total_debt,

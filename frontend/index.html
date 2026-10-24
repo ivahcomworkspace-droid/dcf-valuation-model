@@ -301,12 +301,15 @@
               <div class="flex items-center gap-2">
                 <h2 id="companyNameText" class="text-base sm:text-lg font-bold text-white tracking-tight">Global Benchmark Baseline</h2>
                 <span id="tickerSymbolBadge" class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-400 font-mono text-xs font-bold border border-blue-500/30">BASELINE</span>
-                <span id="exchangeBadge" class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/5 text-slate-400 font-mono text-[10px] border border-white/10">PRO-MODEL</span>
+                <span id="exchangeBadge" class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/5 text-slate-400 font-mono text-[10px] border border-white/10">US</span>
+              </div>
+              <div id="heroMetadataBadge" class="text-xs text-slate-400 font-mono mt-0.5">
+                Global Benchmark Baseline (BASELINE) · US · Currency in USD ($)
               </div>
               <p class="text-xs text-slate-400 font-mono flex items-center gap-2 mt-0.5">
                 <span>Currency: <strong id="currencyDisplay" class="text-slate-200">USD ($)</strong></span>
                 <span>•</span>
-                <span>Market Price: <strong id="marketPriceDisplay" class="text-cyan-400">$92.12</strong></span>
+                <span>Market Price: <strong id="marketPriceDisplay" class="text-cyan-400">—</strong></span>
                 <span>•</span>
                 <span>Diluted Shares: <strong id="sharesSummaryDisplay" class="text-slate-200">20.0M</strong></span>
               </p>
@@ -331,7 +334,7 @@
               <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/30 text-cyan-300">fin_engine.dcf</span>
             </div>
             <div class="mt-2 text-3xl font-extrabold font-mono text-cyan-400 tracking-tight" id="kpiIntrinsicValue">
-              $92.12
+              —
             </div>
             <div class="mt-1 text-xs text-slate-400 flex justify-between items-center">
               <span>Derived Share Price</span>
@@ -345,7 +348,7 @@
               ENTERPRISE VALUE (EV)
             </div>
             <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEnterpriseValue">
-              $1,992M
+              —
             </div>
             <div class="mt-1 text-xs text-slate-400">
               <span id="kpiTerminalValPct" class="text-blue-400 font-semibold font-mono">75.6%</span> Terminal Value
@@ -358,7 +361,7 @@
               EQUITY VALUE BRIDGE
             </div>
             <div class="mt-2 text-3xl font-extrabold font-mono text-white tracking-tight" id="kpiEquityValue">
-              $1,842M
+              —
             </div>
             <div class="mt-1 text-xs text-slate-400 font-mono">
               EV - Total Debt + Cash
@@ -371,11 +374,11 @@
               NET DEBT (DEBT - CASH)
             </div>
             <div class="mt-2 text-3xl font-extrabold font-mono text-slate-200 tracking-tight" id="kpiNetDebt">
-              $150M
+              —
             </div>
             <div class="mt-1 text-xs text-slate-400 font-mono flex justify-between">
-              <span>Cash: <b id="kpiCashDisplay" class="text-slate-300">$50M</b></span>
-              <span>Debt: <b id="kpiDebtDisplay" class="text-slate-300">$200M</b></span>
+              <span>Cash: <b id="kpiCashDisplay" class="text-slate-300">—</b></span>
+              <span>Debt: <b id="kpiDebtDisplay" class="text-slate-300">—</b></span>
             </div>
           </div>
         </section>
@@ -397,11 +400,11 @@
               <div class="grid grid-cols-2 gap-2 mt-3 text-xs font-mono">
                 <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5">
                   <span class="text-[10px] text-slate-500 block">5-YR SUM OF PV(FCFF)</span>
-                  <span id="dashSumPVReadout" class="text-white font-bold text-sm block mt-0.5">$486.4M</span>
+                  <span id="dashSumPVReadout" class="text-white font-bold text-sm block mt-0.5">—</span>
                 </div>
                 <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5">
                   <span class="text-[10px] text-slate-500 block">PV OF TERMINAL VALUE</span>
-                  <span id="dashPVTVReadout" class="text-white font-bold text-sm block mt-0.5">$1,505.9M</span>
+                  <span id="dashPVTVReadout" class="text-white font-bold text-sm block mt-0.5">—</span>
                 </div>
               </div>
             </div>
@@ -431,7 +434,7 @@
                   <span id="dashImpliedGrowthReadout" class="text-2xl font-extrabold font-mono text-emerald-400 block mt-0.5">+8.00%</span>
                 </div>
                 <div class="text-right text-[11px] font-mono text-slate-400">
-                  <span id="dashTargetEVReadout" class="block">Target EV: $1,992M</span>
+                  <span id="dashTargetEVReadout" class="block">Target EV: —</span>
                   <span class="text-[10px] text-slate-500">Root tolerance: &lt; 1e-4</span>
                 </div>
               </div>
@@ -494,7 +497,7 @@
               <div class="grid grid-cols-2 gap-2 mt-3 text-xs font-mono">
                 <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5">
                   <span class="text-[10px] text-slate-500 block">VALUATION SPECTRUM</span>
-                  <span id="dashSensitivitySpread" class="text-cyan-400 font-bold block mt-0.5">$65.4 - $145.2</span>
+                  <span id="dashSensitivitySpread" class="text-cyan-400 font-bold block mt-0.5">—</span>
                 </div>
                 <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5">
                   <span class="text-[10px] text-slate-500 block">BASE ASSUMPTION CELL</span>
@@ -576,8 +579,8 @@
               </div>
 
               <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-400">
-                <span>5-Yr Cumulative PV: <strong id="chartSumPV" class="text-cyan-400">$486.4M</strong></span>
-                <span>PV of Terminal Value: <strong id="chartPVTV" class="text-indigo-300">$1,505.9M</strong></span>
+                <span>5-Yr Cumulative PV: <strong id="chartSumPV" class="text-cyan-400">—</strong></span>
+                <span>PV of Terminal Value: <strong id="chartPVTV" class="text-indigo-300">—</strong></span>
               </div>
             </div>
 
@@ -589,9 +592,9 @@
                   <thead>
                     <tr class="border-b border-white/10 text-slate-400 text-[11px]">
                       <th class="py-1.5">Period</th>
-                      <th class="py-1.5 text-right">Projected FCFF</th>
+                      <th class="py-1.5 text-right">Projected FCFF (<span class="currency-symbol-label">$</span>M)</th>
                       <th class="py-1.5 text-right">Discount Factor</th>
-                      <th class="py-1.5 text-right">Present Value (PV)</th>
+                      <th class="py-1.5 text-right">Present Value (PV) (<span class="currency-symbol-label">$</span>M)</th>
                     </tr>
                   </thead>
                   <tbody id="dcfProjectionTableBody" class="divide-y divide-white/5">
@@ -621,7 +624,7 @@
                 <div>
                   <div class="flex justify-between items-center mb-1">
                     <span class="text-slate-300 font-medium">Base Free Cash Flow (FCFF)</span>
-                    <span id="badgeBaseFCFF" class="text-cyan-400 font-mono font-bold">$100M</span>
+                    <span id="badgeBaseFCFF" class="text-cyan-400 font-mono font-bold">—</span>
                   </div>
                   <input type="range" id="sliderBaseFCFF" min="5" max="500" step="5" value="100">
                 </div>
@@ -662,11 +665,11 @@
                   <input type="number" id="inputShares" value="20" min="0.1" step="1" class="glass-input w-full px-2 py-1 rounded-lg text-xs font-mono">
                 </div>
                 <div>
-                  <label class="text-[10px] text-slate-400 font-mono block mb-1">Cash ($M)</label>
+                  <label class="text-[10px] text-slate-400 font-mono block mb-1">Cash (<span class="currency-symbol-label">$</span>M)</label>
                   <input type="number" id="inputCash" value="50" min="0" step="10" class="glass-input w-full px-2 py-1 rounded-lg text-xs font-mono">
                 </div>
                 <div>
-                  <label class="text-[10px] text-slate-400 font-mono block mb-1">Debt ($M)</label>
+                  <label class="text-[10px] text-slate-400 font-mono block mb-1">Debt (<span class="currency-symbol-label">$</span>M)</label>
                   <input type="number" id="inputDebt" value="200" min="0" step="10" class="glass-input w-full px-2 py-1 rounded-lg text-xs font-mono">
                 </div>
               </div>
@@ -675,10 +678,10 @@
             <!-- Live Output Callout inside Workbench -->
             <div class="glass-card-highlight rounded-xl p-3 border border-blue-500/40">
               <span class="text-[10px] font-mono uppercase text-blue-300 block">REAL-TIME INTRINSIC PRICE</span>
-              <span id="workbenchIntrinsicDisplay" class="text-2xl font-extrabold font-mono text-cyan-400 block mt-1">$92.12</span>
+              <span id="workbenchIntrinsicDisplay" class="text-2xl font-extrabold font-mono text-cyan-400 block mt-1">—</span>
               <div class="flex justify-between text-[11px] font-mono text-slate-400 mt-1">
-                <span id="workbenchEVDisplay">EV: $1,992M</span>
-                <span id="workbenchEqValDisplay">Equity: $1,842M</span>
+                <span id="workbenchEVDisplay">EV: —</span>
+                <span id="workbenchEqValDisplay">Equity: —</span>
               </div>
             </div>
 
@@ -720,7 +723,7 @@
               
               <div class="space-y-3">
                 <div>
-                  <label class="text-[11px] font-mono text-slate-400 block mb-1">Target Market Price (<span id="reverseCurrencyLabel">$</span>)</label>
+                  <label class="text-[11px] font-mono text-slate-400 block mb-1">Target Market Price (<span id="reverseCurrencyLabel" class="currency-symbol-label">$</span>)</label>
                   <div class="flex gap-2">
                     <input type="number" id="inputReversePrice" value="92.12" min="1" step="0.5" class="glass-input flex-1 px-3 py-2 rounded-xl text-base font-mono font-bold text-white">
                     <button id="btnSolveReverseDCF" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition shadow-md shadow-blue-600/30">
@@ -732,7 +735,7 @@
                 <div class="p-3 rounded-xl bg-obsidian-900 border border-white/5 space-y-1.5 text-xs font-mono text-slate-400">
                   <div class="flex justify-between">
                     <span>Base FCFF:</span>
-                    <span id="reverseBaseFCFFVal" class="text-slate-200 font-bold">$100M</span>
+                    <span id="reverseBaseFCFFVal" class="text-slate-200 font-bold">—</span>
                   </div>
                   <div class="flex justify-between">
                     <span>WACC Discount Rate:</span>
@@ -744,7 +747,7 @@
                   </div>
                   <div class="flex justify-between">
                     <span>Capital Structure:</span>
-                    <span id="reverseNetDebtVal" class="text-slate-200 font-bold">Net Debt $150M</span>
+                    <span id="reverseNetDebtVal" class="text-slate-200 font-bold">Net Debt —</span>
                   </div>
                 </div>
               </div>
@@ -770,11 +773,11 @@
               <div class="grid grid-cols-2 gap-3 mt-4 text-xs font-mono">
                 <div class="p-3 rounded-xl bg-obsidian-900/80 border border-white/5">
                   <span class="text-[10px] text-slate-500 block">TARGET ENTERPRISE VALUE</span>
-                  <span id="solvedTargetEV" class="text-white font-bold text-sm block mt-0.5">$1,992M</span>
+                  <span id="solvedTargetEV" class="text-white font-bold text-sm block mt-0.5">—</span>
                 </div>
                 <div class="p-3 rounded-xl bg-obsidian-900/80 border border-white/5">
                   <span class="text-[10px] text-slate-500 block">TARGET EQUITY VALUE</span>
-                  <span id="solvedTargetEquity" class="text-white font-bold text-sm block mt-0.5">$1,842M</span>
+                  <span id="solvedTargetEquity" class="text-white font-bold text-sm block mt-0.5">—</span>
                 </div>
               </div>
             </div>
@@ -836,6 +839,12 @@
             <span class="text-violet-300 font-bold">ROE = Net Profit Margin &times; Asset Turnover &times; Financial Leverage</span>
             = (Net Income / Revenue) &times; (Revenue / Assets) &times; (Assets / Equity)
           </p>
+          <div id="dupontMonetarySummary" class="mt-2.5 pt-2.5 border-t border-white/5 flex flex-wrap gap-4 text-[11px] font-mono text-slate-400">
+            <span>Net Income: <strong id="dupontNetIncomeVal" class="text-slate-200">—</strong></span>
+            <span>Revenue: <strong id="dupontRevenueVal" class="text-slate-200">—</strong></span>
+            <span>Total Assets: <strong id="dupontAssetsVal" class="text-slate-200">—</strong></span>
+            <span>Total Equity: <strong id="dupontEquityVal" class="text-slate-200">—</strong></span>
+          </div>
         </section>
 
         <!-- Top Aggregate ROE Banner -->
@@ -982,6 +991,40 @@
   <!-- APPLICATION JAVASCRIPT LOGIC                                           -->
   <!-- ====================================================================== -->
   <script>
+    // Global Universal Currency State & Reactive Money Formatter
+    window.activeCurrency = { code: 'USD', symbol: '$', name: 'US Dollar', exchange: 'US' };
+
+    window.formatMoney = function(value, includeSymbol = true) {
+      if (value === null || value === undefined || isNaN(value)) return 'N/A';
+      const absVal = Math.abs(value);
+      let formatted = '';
+      if (absVal >= 1e9) formatted = (value / 1e9).toFixed(2) + 'B';
+      else if (absVal >= 1e6) formatted = (value / 1e6).toFixed(2) + 'M';
+      else if (absVal >= 1e3) formatted = (value / 1e3).toFixed(2) + 'K';
+      else formatted = Number(value).toFixed(2);
+      return includeSymbol ? `${window.activeCurrency.symbol}${formatted}` : formatted;
+    };
+
+    // Currency Formatting Utility
+    const fmt = (n, dec = 0) => {
+      const sym = (window.activeCurrency && window.activeCurrency.symbol) || state.currencySymbol || "$";
+      if (!isFinite(n) || n === null || n === undefined) return 'N/A';
+      return sym + Number(n).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    };
+
+    function updateCurrencyDOM() {
+      const sym = (window.activeCurrency && window.activeCurrency.symbol) || '$';
+      document.querySelectorAll('.currency-symbol-label, .currency-symbol-tag').forEach(el => {
+        el.textContent = sym;
+      });
+      if (typeof reverseCurrencyLabel !== 'undefined' && reverseCurrencyLabel) {
+        reverseCurrencyLabel.textContent = sym;
+      }
+      if (typeof currencyDisplay !== 'undefined' && currencyDisplay) {
+        currencyDisplay.textContent = `${window.activeCurrency.code} (${sym})`;
+      }
+    }
+
     // Global Quantitative State Store
     const state = {
       ticker: "BASELINE",
@@ -1109,12 +1152,6 @@
     let cashFlowChartInstance = null;
     let reverseDCFChartInstance = null;
 
-    // Currency Formatting Utility
-    const fmt = (n, dec = 0) => {
-      const sym = state.currencySymbol || "$";
-      if (!isFinite(n) || n === null) return 'N/A';
-      return sym + n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-    };
 
     // Calculation Status Spinner Management
     let activeCalcCounter = 0;
@@ -1516,6 +1553,15 @@
         dupontLeverageVal.textContent = leverageX;
         dupontRoeVal.textContent = roePct;
 
+        const netIncEl = document.getElementById('dupontNetIncomeVal');
+        const revEl = document.getElementById('dupontRevenueVal');
+        const assetsEl = document.getElementById('dupontAssetsVal');
+        const eqEl = document.getElementById('dupontEquityVal');
+        if (netIncEl) netIncEl.textContent = fmt(state.netIncome, 1) + 'M';
+        if (revEl) revEl.textContent = fmt(state.revenue, 1) + 'M';
+        if (assetsEl) assetsEl.textContent = fmt(state.totalAssets, 1) + 'M';
+        if (eqEl) eqEl.textContent = fmt(state.totalEquity, 1) + 'M';
+
         dashMarginReadout.textContent = marginPct;
         dashTurnoverReadout.textContent = turnoverX;
         dashLeverageReadout.textContent = leverageX;
@@ -1586,7 +1632,7 @@
         const minVal = Math.min(...flatVals);
         const maxVal = Math.max(...flatVals);
 
-        dashSensitivitySpread.textContent = `${fmt(minVal, 1)} - ${fmt(maxVal, 1)}`;
+        dashSensitivitySpread.textContent = `${window.activeCurrency.symbol}${minVal.toFixed(2)} - ${window.activeCurrency.symbol}${maxVal.toFixed(2)}`;
         dashSensitivityBaseCell.textContent = `WACC: ${state.wacc.toFixed(1)}% | g: ${state.perpetualGrowth.toFixed(1)}%`;
         matrixActiveCellLabel.textContent = `WACC: ${state.wacc.toFixed(1)}% | g₂: ${state.perpetualGrowth.toFixed(1)}%`;
 
@@ -1616,8 +1662,8 @@
                     class="w-full py-2 px-1 rounded-lg text-xs font-mono transition-all ${border}" 
                     style="background-color: ${bg};"
                     onclick="applySensitivity(${currentW * 100}, ${currentG * 100})"
-                    title="Set WACC=${(currentW * 100).toFixed(1)}%, g2=${(currentG * 100).toFixed(1)}%">
-                    ${fmt(val, 1)}
+                    title="Set WACC=${(currentW * 100).toFixed(1)}%, g2=${(currentG * 100).toFixed(1)}% | Intrinsic Price: ${window.activeCurrency.symbol}${val.toFixed(2)}">
+                    ${window.activeCurrency.symbol}${val.toFixed(2)}
                   </button>
                 </td>
               `;
@@ -1739,11 +1785,17 @@
 
         const data = await res.json();
         
+        // Update Universal Active Currency State
+        window.activeCurrency.code = data.currency || 'USD';
+        window.activeCurrency.symbol = data.currency_symbol || '$';
+        window.activeCurrency.name = data.currency_name || data.currency || 'US Dollar';
+        window.activeCurrency.exchange = data.exchange || 'GLOBAL';
+
         // Update State with genuine financial metrics
         state.ticker = data.symbol;
         state.companyName = data.company_name;
         state.currency = data.currency;
-        state.currencySymbol = data.currency_symbol || '$';
+        state.currencySymbol = window.activeCurrency.symbol;
         state.marketPrice = Number(data.price.toFixed(2));
         state.shares = Number(data.diluted_shares.toFixed(1));
         state.cash = Number(data.cash.toFixed(1));
@@ -1775,19 +1827,27 @@
         inputDebt.value = state.debt;
         inputReversePrice.value = state.marketPrice.toFixed(2);
 
+        // Update Hero Metadata Badge
+        const heroBadge = document.getElementById('heroMetadataBadge');
+        if (heroBadge) {
+          heroBadge.textContent = `${data.company_name} (${data.symbol}) · ${data.exchange} · Currency in ${data.currency} (${data.currency_symbol})`;
+        }
+
         // Update UI Banner & Typography
         companyNameText.textContent = data.company_name;
         tickerSymbolBadge.textContent = data.symbol;
-        currencyDisplay.textContent = `${data.currency} (${data.currency_symbol || '$'})`;
+        exchangeBadge.textContent = data.exchange;
+        currencyDisplay.textContent = `${data.currency} (${data.currency_symbol})`;
         marketPriceDisplay.textContent = fmt(data.price, 2);
         sharesSummaryDisplay.textContent = `${state.shares.toFixed(1)}M`;
         companyLogoInitials.textContent = data.symbol.slice(0, 2);
-        exchangeBadge.textContent = "LIVE";
 
         badgeBaseFCFF.textContent = fmt(state.baseFCFF, 0) + 'M';
         badgeWACC.textContent = state.wacc.toFixed(1) + '%';
         badgeGrowthRate.textContent = state.growthRate.toFixed(1) + '%';
         badgePerpetualGrowth.textContent = state.perpetualGrowth.toFixed(1) + '%';
+
+        updateCurrencyDOM();
 
         // Trigger batch recalculation across all tabs
         await recalculateAll();
@@ -1861,6 +1921,7 @@
       btn.addEventListener('click', () => {
         const t = btn.getAttribute('data-ticker');
         if (t === 'BASELINE') {
+          window.activeCurrency = { code: 'USD', symbol: '$', name: 'US Dollar', exchange: 'US' };
           state.ticker = "BASELINE";
           state.companyName = "Global Benchmark Baseline";
           state.currency = "USD";
@@ -1878,13 +1939,18 @@
           state.totalAssets = 800.0;
           state.totalEquity = 400.0;
 
+          const heroBadge = document.getElementById('heroMetadataBadge');
+          if (heroBadge) {
+            heroBadge.textContent = `${state.companyName} (${state.ticker}) · US · Currency in USD ($)`;
+          }
+
           companyNameText.textContent = state.companyName;
           tickerSymbolBadge.textContent = state.ticker;
           currencyDisplay.textContent = "USD ($)";
-          marketPriceDisplay.textContent = "$92.12";
+          marketPriceDisplay.textContent = fmt(state.marketPrice, 2);
           sharesSummaryDisplay.textContent = "20.0M";
           companyLogoInitials.textContent = "QK";
-          exchangeBadge.textContent = "PRO-MODEL";
+          exchangeBadge.textContent = "US";
 
           sliderBaseFCFF.min = 5;
           sliderBaseFCFF.max = 500;
@@ -1898,10 +1964,12 @@
           inputDebt.value = 200;
           inputReversePrice.value = 92.12;
 
-          badgeBaseFCFF.textContent = "$100M";
+          badgeBaseFCFF.textContent = fmt(state.baseFCFF, 0) + 'M';
           badgeGrowthRate.textContent = "8.0%";
           badgeWACC.textContent = "9.0%";
           badgePerpetualGrowth.textContent = "2.5%";
+
+          updateCurrencyDOM();
 
           recalculateAll();
         } else {
@@ -1917,6 +1985,7 @@
 
     // Initial Execution on Load
     function initApp() {
+      updateCurrencyDOM();
       initCashFlowChart();
       initReverseDCFChart();
       recalculateAll();
